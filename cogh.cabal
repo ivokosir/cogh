@@ -1,0 +1,69 @@
+name:     cogh
+version:  0.1.0.0
+synopsis: Simple computer graphics in haskell
+
+-- description:
+
+license:       MIT
+license-file:  LICENSE
+author:        Ivo Kosir
+maintainer:    ivo.kosir93@gmail.com
+copyright:     Copyright © 2015 Ivo Kosir
+category:      Graphics
+build-type:    Simple
+cabal-version: >=1.10
+
+extra-source-files:
+  csrc/*.h
+
+library
+  hs-source-dirs:   src
+  default-language: Haskell2010
+  ghc-options:      -Wall
+
+  build-depends:
+    base >=4.8 && <4.9
+
+  -- other-extensions:
+
+  exposed-modules:
+    Graphics.Cogh,
+    Graphics.Cogh.Key,
+    Graphics.Cogh.Event,
+    Graphics.Cogh.Render,
+    Graphics.Cogh.Image,
+    Graphics.Cogh.Window,
+    Graphics.Cogh.Mouse,
+    Graphics.Cogh.Text,
+    Graphics.Cogh.Joystick
+
+  other-modules:
+    Graphics.Cogh.CommonFFI
+
+  c-sources:
+    csrc/event.c,
+    csrc/image.c,
+    csrc/joystick.c,
+    csrc/key.c,
+    csrc/mouse.c,
+    csrc/render.c,
+    csrc/text.c,
+    csrc/window.c
+
+  includes:
+    csrc/event.h,
+    csrc/image.h,
+    csrc/joystick.h,
+    csrc/key.h,
+    csrc/mouse.h,
+    csrc/render.h,
+    csrc/text.h,
+    csrc/window.h
+
+  pkgconfig-depends:
+    sdl2 >= 2.0.3
+
+  extra-libraries:
+    SDL2_image,
+    SDL2_ttf
+
