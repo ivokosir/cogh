@@ -28,6 +28,7 @@ library
 
   exposed-modules:
     Graphics.Cogh,
+    Graphics.Cogh.Element,
     Graphics.Cogh.Event,
     Graphics.Cogh.Image,
     Graphics.Cogh.Text,
