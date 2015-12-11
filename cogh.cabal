@@ -28,17 +28,17 @@ library
 
   exposed-modules:
     Graphics.Cogh,
-    Graphics.Cogh.Key,
     Graphics.Cogh.Event,
-    Graphics.Cogh.Render,
     Graphics.Cogh.Image,
-    Graphics.Cogh.Window,
-    Graphics.Cogh.Mouse,
     Graphics.Cogh.Text,
-    Graphics.Cogh.Joystick
+    Graphics.Cogh.Window
 
   other-modules:
-    Graphics.Cogh.CommonFFI
+    Graphics.Cogh.CommonFFI,
+    Graphics.Cogh.Joystick,
+    Graphics.Cogh.Key,
+    Graphics.Cogh.Mouse,
+    Graphics.Cogh.Render
 
   c-sources:
     csrc/event.c,

@@ -1,6 +1,6 @@
 module Graphics.Cogh.Event
   ( Event (..)
-  , nextEvent
+  , getEvents
   )where
 
 import Graphics.Cogh.CommonFFI
@@ -9,6 +9,15 @@ import Graphics.Cogh.Mouse
 import Graphics.Cogh.Joystick
 
 import Data.Maybe
+
+getEvents :: Window -> IO [Event]
+getEvents w = getEvents' []
+ where
+  getEvents' es = do
+    me <- nextEvent w
+    case me of
+      Just e -> getEvents' $ e : es
+      Nothing -> return es
 
 nextEvent :: Window -> IO (Maybe Event)
 nextEvent w = do
