@@ -56,4 +56,7 @@ move dx dy (Element r) = Element render
     r (Matrix (x + dx) (y + dy))
 
 renderRoot :: Window -> Element -> IO ()
-renderRoot window (Element r) = r (Matrix 0 0) window
+renderRoot window (Element r) = do
+  clear window
+  r (Matrix 0 0) window
+  swapBuffers window
