@@ -31,6 +31,7 @@ library
     Graphics.Cogh.Element,
     Graphics.Cogh.Event,
     Graphics.Cogh.Image,
+    Graphics.Cogh.Render,
     Graphics.Cogh.Text,
     Graphics.Cogh.Window
 
@@ -38,8 +39,7 @@ library
     Graphics.Cogh.CommonFFI,
     Graphics.Cogh.Joystick,
     Graphics.Cogh.Key,
-    Graphics.Cogh.Mouse,
-    Graphics.Cogh.Render
+    Graphics.Cogh.Mouse
 
   c-sources:
     csrc/event.c,
