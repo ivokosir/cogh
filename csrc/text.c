@@ -17,24 +17,18 @@ void deleteFont(Font* f) {
 	free(f);
 }
 
-
 Texture* newTextureFromText(
 		Window* w,
 		Font* f, const char* text,
-		unsigned int color) {
+		float* color) {
 	Texture* t = malloc(sizeof(Texture));
 
 	SDL_Color sdl_color;
-	sdl_color.r = (color >> (8*3)) & 0xFF;
-	sdl_color.g = (color >> (8*2)) & 0xFF;
-	sdl_color.b = (color >> (8*1)) & 0xFF;
-	sdl_color.a = (color >> (8*0)) & 0xFF;
+	sdl_color.r = color[0] * 0xFF;
+	sdl_color.g = color[1] * 0xFF;
+	sdl_color.b = color[2] * 0xFF;
+	sdl_color.a = color[3] * 0xFF;
 
-	SDL_Surface* surface =
-		TTF_RenderUTF8_Solid(f->ttf_font, text, sdl_color);
-	t->sdl_texture =
-		SDL_CreateTextureFromSurface(w->renderer, surface);
-	SDL_FreeSurface(surface);
-
-	return t;
+	return surfaceToTexture(
+		TTF_RenderUTF8_Blended(f->ttf_font, text, sdl_color));
 }

@@ -13,4 +13,4 @@ void deleteFont(Font* f);
 Texture* newTextureFromText(
 		Window* w,
 		Font* f, const char* text,
-		unsigned int color);
+		float* color);

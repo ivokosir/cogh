@@ -31,15 +31,20 @@ library
     Graphics.Cogh.Element,
     Graphics.Cogh.Event,
     Graphics.Cogh.Image,
-    Graphics.Cogh.Render,
     Graphics.Cogh.Text,
-    Graphics.Cogh.Window
+    Graphics.Cogh.Window,
+    Graphics.Cogh.Key,
+    Graphics.Cogh.Mouse,
+    Graphics.Cogh.Joystick
 
   other-modules:
+    Graphics.Cogh.Color,
     Graphics.Cogh.CommonFFI,
-    Graphics.Cogh.Joystick,
-    Graphics.Cogh.Key,
-    Graphics.Cogh.Mouse
+    Graphics.Cogh.Matrix,
+    Graphics.Cogh.Render,
+    Graphics.Cogh.Key.Internal,
+    Graphics.Cogh.Mouse.Internal,
+    Graphics.Cogh.Joystick.Internal
 
   c-sources:
     csrc/event.c,
@@ -48,6 +53,7 @@ library
     csrc/key.c,
     csrc/mouse.c,
     csrc/render.c,
+    csrc/shader.c,
     csrc/text.c,
     csrc/window.c
 
@@ -66,5 +72,7 @@ library
 
   extra-libraries:
     SDL2_image,
-    SDL2_ttf
+    SDL2_ttf,
+    GLEW,
+    GL
 

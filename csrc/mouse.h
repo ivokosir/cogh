@@ -4,7 +4,7 @@
 
 typedef struct MouseButton MouseButton;
 
-MouseButton* getMouseButton(Window*);
+MouseButton** getMouseButtons(Window*);
 int mouseButtonIsLeft(MouseButton*);
 int mouseButtonIsMiddle(MouseButton*);
 int mouseButtonIsRight(MouseButton*);
@@ -13,12 +13,12 @@ unsigned int mouseButtonCode(MouseButton*);
 
 typedef struct MousePosition MousePosition;
 
-MousePosition* getMousePosition(Window*);
+MousePosition** getMousePositions(Window*);
 int mousePositionX(MousePosition*);
 int mousePositionY(MousePosition*);
 
 typedef struct Scroll Scroll;
 
-Scroll* getScroll(Window*);
+Scroll** getScrolls(Window*);
 int scrollX(Scroll*);
 int scrollY(Scroll*);

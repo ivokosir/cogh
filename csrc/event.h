@@ -2,14 +2,14 @@
 
 #include "window.h"
 
-int pollEvent(Window*);
+void pollEvents(Window*);
 
 typedef struct Quit Quit;
 
-Quit* getQuit(Window*);
+Quit** getQuits(Window*);
 
-typedef struct Resize Resize;
+typedef struct Size Size;
 
-Resize* getResize(Window*);
-unsigned int resizeW(Resize*);
-unsigned int resizeH(Resize*);
+Size** getSizes(Window*);
+unsigned int sizeW(Size*);
+unsigned int sizeH(Size*);

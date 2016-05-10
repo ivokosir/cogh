@@ -1,69 +1,75 @@
 module Graphics.Cogh.Event
-  ( Event (..)
-  , getEvents
+  ( WindowState (..)
+  , pollEvents
+  , WindowSize
+  , Quit
   )where
 
 import Graphics.Cogh.CommonFFI
-import Graphics.Cogh.Key
-import Graphics.Cogh.Mouse
-import Graphics.Cogh.Joystick
+import qualified Graphics.Cogh.Key.Internal as Key
+import qualified Graphics.Cogh.Mouse.Internal as Mouse
+import qualified Graphics.Cogh.Joystick.Internal as Joystick
 
-import Data.Maybe
+data WindowState = WindowState
+  { keys :: [Key.Key]
+  , mouseButtons :: [Mouse.Button]
+  , mousePositions :: [Mouse.Position]
+  , mouseScrolls :: [Mouse.Scroll]
+  , joystickButtons :: [Joystick.Button]
+  , joystickAxii :: [Joystick.Axis]
+  , windowSizes :: [WindowSize]
+  , quits :: [Quit]
+  }
 
-getEvents :: Window -> IO [Event]
-getEvents w = getEvents' []
- where
-  getEvents' es = do
-    me <- nextEvent w
-    case me of
-      Just e -> getEvents' $ e : es
-      Nothing -> return es
+pollEvents :: Window -> IO WindowState
+pollEvents w = do
+  cPollEvents w
 
-nextEvent :: Window -> IO (Maybe Event)
-nextEvent w = do
-  hasNext <- pollEvent w
-
-  if cBool hasNext
-    then do
-      quit <- maybeQuit w
-      resize <- maybeResize w
-      key <- maybeKey w
-      mouseButton <- maybeMouseButton w
-      mousePosition <- maybeMousePosition w
-      scroll <- maybeScroll w
-      joystickButton <- maybeJoystickButton w
-      joystickAxis <- maybeJoystickAxis w
-
-      case listToMaybe $ catMaybes
-        [ quit, resize, key, mouseButton , mousePosition
-        , scroll, joystickButton, joystickAxis
-        ] of
-        Nothing -> nextEvent w
-        e -> return e
-    else return Nothing
-
- where
-  maybeQuit = maybeEvent getQuit $ \ _ -> return Quit
-
-  maybeResize = maybeEvent getResize $ \ p -> do
-    x <- resizeW p
-    y <- resizeH p
-    return $ Resize (fromIntegral x) (fromIntegral y)
+  WindowState
+    <$> Key.getKeys w
+    <*> Mouse.getButtons w
+    <*> Mouse.getPositions w
+    <*> Mouse.getScrolls w
+    <*> Joystick.getButtons w
+    <*> Joystick.getAxii w
+    <*> getWindowSizes w
+    <*> getQuits w
 
 
-foreign import ccall unsafe "pollEvent" pollEvent
-  :: Window -> IO (CInt)
+type WindowSize = (Int, Int)
+
+getWindowSizes :: Window -> IO [WindowSize]
+getWindowSizes = getEvents cGetWindowSizes castWindowSize
+
+castWindowSize :: Ptr () -> IO WindowSize
+castWindowSize cWindowSize = do
+  w <- windowSizeW cWindowSize
+  h <- windowSizeH cWindowSize
+  return $ (fromIntegral w, fromIntegral h)
 
 
-foreign import ccall unsafe "getQuit" getQuit
-  :: Window -> IO (Ptr ())
+data Quit = Quit
+
+getQuits :: Window -> IO [Quit]
+getQuits = getEvents cGetQuits castQuit
+
+castQuit :: Ptr () -> IO Quit
+castQuit _ = return Quit
 
 
-foreign import ccall unsafe "getResize" getResize
-  :: Window -> IO (Ptr ())
+foreign import ccall unsafe "pollEvents" cPollEvents
+  :: Window -> IO ()
 
-foreign import ccall unsafe "resizeW" resizeW
+
+foreign import ccall unsafe "getSizes" cGetWindowSizes
+  :: Window -> IO (Ptr (Ptr ()))
+
+foreign import ccall unsafe "sizeW" windowSizeW
   :: Ptr () -> IO CUInt
 
-foreign import ccall unsafe "resizeH" resizeH
+foreign import ccall unsafe "sizeH" windowSizeH
   :: Ptr () -> IO CUInt
+
+
+foreign import ccall unsafe "getQuits" cGetQuits
+  :: Window -> IO (Ptr (Ptr ()))

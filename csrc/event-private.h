@@ -9,7 +9,7 @@ struct Key {
 	unsigned int code;
 };
 
-struct Resize {
+struct Size {
 	int w;
 	int h;
 };

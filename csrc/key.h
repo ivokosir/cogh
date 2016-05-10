@@ -4,7 +4,7 @@
 
 typedef struct Key Key;
 
-Key* getKey(Window*);
+Key** getKeys(Window*);
 int keyIsPress(Key*);
 int keyIsRepeat(Key*);
 unsigned int keyCode(Key*);

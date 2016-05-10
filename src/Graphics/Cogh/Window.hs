@@ -6,16 +6,17 @@ module Graphics.Cogh.Window
   ) where
 
 import Data.Word
+
 import Graphics.Cogh.CommonFFI
 
 newWindow :: String -> IO (Maybe Window)
 newWindow title = do
-  w <- withCString title newWindow'
+  w <- withCString title cNewWindow
   if (\ (Window p) -> p) w /= nullPtr
     then return (Just w)
     else return Nothing
 
-foreign import ccall unsafe "newWindow" newWindow'
+foreign import ccall unsafe "newWindow" cNewWindow
   :: CString -> IO Window
 
 foreign import ccall unsafe "deleteWindow" deleteWindow

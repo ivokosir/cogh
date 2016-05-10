@@ -5,7 +5,7 @@ module Graphics.Cogh.Image
 import Graphics.Cogh.CommonFFI
 
 
-foreign import ccall unsafe "newTextureFromImage" newTextureFromImage'
+foreign import ccall unsafe "newTextureFromImage" cNewTextureFromImage
   :: Window -> CString -> IO Texture
-newTextureFromImage :: Window -> String -> IO Texture
-newTextureFromImage w file = withCString file $ newTextureFromImage' w
+newTextureFromImage :: Window -> FilePath -> IO Texture
+newTextureFromImage w file = withCString file $ cNewTextureFromImage w
