@@ -4,8 +4,6 @@
 
 #include "key.h"
 
-#include <SDL.h>
-
 static void pollEvent(Window* w, SDL_Event event) {
 	if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
 		Key* key = malloc(sizeof(Key));

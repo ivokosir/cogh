@@ -11,7 +11,7 @@ module Graphics.Cogh.Joystick.Internal
 
 import Graphics.Cogh.CommonFFI
 
-data Button = Button Id Code State
+data Button = Button Id Code State deriving (Eq, Read, Show)
 
 type Id = Int
 
@@ -32,7 +32,7 @@ castButton cButton = do
     (fromIntegral code) state
 
 
-data Axis = Axis Id AxisId Double
+data Axis = Axis Id AxisId Double deriving (Eq, Read, Show)
 
 type AxisId = Int
 
