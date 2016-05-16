@@ -39,12 +39,12 @@ library
 
   other-modules:
     Graphics.Cogh.Color,
-    Graphics.Cogh.CommonFFI,
     Graphics.Cogh.Matrix,
     Graphics.Cogh.Render,
     Graphics.Cogh.Key.Internal,
     Graphics.Cogh.Mouse.Internal,
-    Graphics.Cogh.Joystick.Internal
+    Graphics.Cogh.Joystick.Internal,
+    Graphics.Cogh.Window.Internal
 
   c-sources:
     csrc/event.c,

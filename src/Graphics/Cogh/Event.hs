@@ -5,7 +5,8 @@ module Graphics.Cogh.Event
   , Quit
   )where
 
-import Graphics.Cogh.CommonFFI
+import Graphics.Cogh.Event.Internal
+import Graphics.Cogh.Window.Internal
 import qualified Graphics.Cogh.Key.Internal as Key
 import qualified Graphics.Cogh.Mouse.Internal as Mouse
 import qualified Graphics.Cogh.Joystick.Internal as Joystick
@@ -45,7 +46,7 @@ castWindowSize :: Ptr () -> IO WindowSize
 castWindowSize cWindowSize = do
   w <- windowSizeW cWindowSize
   h <- windowSizeH cWindowSize
-  return $ (fromIntegral w, fromIntegral h)
+  return (fromIntegral w, fromIntegral h)
 
 
 data Quit = Quit

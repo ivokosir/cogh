@@ -1,7 +1,5 @@
-module Graphics.Cogh.CommonFFI
-  ( Window (..)
-  , Texture (..)
-  , getEvents
+module Graphics.Cogh.Event.Internal
+  ( getEvents
   , cBool
   , module Foreign.C
   , module Foreign.Ptr
@@ -10,10 +8,7 @@ module Graphics.Cogh.CommonFFI
 import Foreign.C
 import Foreign.Ptr
 import Foreign.Marshal.Array
-
-newtype Window = Window (Ptr ())
-
-newtype Texture = Texture (Ptr ())
+import Graphics.Cogh.Window.Internal
 
 getEvents
   :: (Window -> IO (Ptr (Ptr ())))

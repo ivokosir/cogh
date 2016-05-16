@@ -14,7 +14,6 @@ import qualified Graphics.Cogh.Render as Export
   ( Texture
   , textureWidth
   , textureHeight
-  , deleteTexture
   )
 
 import Graphics.Cogh.Render

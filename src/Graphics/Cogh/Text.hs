@@ -1,28 +1,45 @@
 module Graphics.Cogh.Text
   ( Font
   , newFont
-  , deleteFont
+  , fontSize
   , newTextureFromText
   )where
 
-import Graphics.Cogh.CommonFFI
+import Foreign.C
+import Foreign.Ptr
+import Foreign.ForeignPtr
 import Graphics.Cogh.Color
+import Graphics.Cogh.Render
+import Graphics.Cogh.Window.Internal
 
-newtype Font = Font (Ptr ())
+data Font = Font (ForeignPtr ()) Int
 
-foreign import ccall unsafe "newFont" newFont'
-  :: CString -> CInt -> IO Font
 newFont :: FilePath -> Int -> IO Font
-newFont file size = withCString file $
-  \ cfile -> newFont' cfile $ fromIntegral size
+newFont file size = do
+  cFont <- withCString file $ \ cFile -> cNewFont cFile $ fromIntegral size
+  foreignPtr <- newForeignPtr deleteFontFunPtr cFont
+  return $ Font foreignPtr size
 
-foreign import ccall unsafe "deleteFont" deleteFont
-  :: Font -> IO ()
+fontSize :: Font -> Int
+fontSize (Font _ size) = size
+
+withCFont :: Font -> (Ptr () -> IO a) -> IO a
+withCFont (Font foreignPtr _) = withForeignPtr foreignPtr
+
+foreign import ccall unsafe "newFont" cNewFont
+  :: CString -> CInt -> IO (Ptr ())
+
+foreign import ccall unsafe "&deleteFont" deleteFontFunPtr
+  :: FunPtr (Ptr () -> IO ())
+
+newTextureFromText :: Window -> Font -> String -> Color -> IO Texture
+newTextureFromText w f text color = do
+  cTexture <-
+    withCFont f $ \ cFont ->
+      withCString text $ \ cText ->
+        withColorPtr color $ \ cColor ->
+          cNewTextureFromText w cFont cText cColor
+  newTexture cTexture
 
 foreign import ccall unsafe "newTextureFromText" cNewTextureFromText
-  :: Window -> Font -> CString -> Ptr Float -> IO Texture
-newTextureFromText :: Window -> Font -> String -> Color -> IO Texture
-newTextureFromText w f text color =
-  withCString text $ \ ctext ->
-    withColorPtr color $ \ colorPtr ->
-      cNewTextureFromText w f ctext colorPtr
+  :: Window -> Ptr () -> CString -> Ptr Float -> IO (Ptr ())

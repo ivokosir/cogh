@@ -6,8 +6,9 @@ module Graphics.Cogh.Window
   ) where
 
 import Data.Word
-
-import Graphics.Cogh.CommonFFI
+import Foreign.C
+import Foreign.Ptr
+import Graphics.Cogh.Window.Internal
 
 newWindow :: String -> IO (Maybe Window)
 newWindow title = do
@@ -23,4 +24,4 @@ foreign import ccall unsafe "deleteWindow" deleteWindow
   :: Window -> IO ()
 
 foreign import ccall unsafe "time" time
-  :: IO (Word32)
+  :: IO Word32

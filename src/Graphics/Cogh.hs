@@ -1,13 +1,9 @@
 module Graphics.Cogh
-  ( module Graphics.Cogh.Element
-  , module Graphics.Cogh.Event
-  , module Graphics.Cogh.Image
-  , module Graphics.Cogh.Text
-  , module Graphics.Cogh.Window
+  ( module Export
   ) where
 
-import Graphics.Cogh.Element
-import Graphics.Cogh.Event
-import Graphics.Cogh.Image
-import Graphics.Cogh.Text
-import Graphics.Cogh.Window
+import Graphics.Cogh.Element as Export
+import Graphics.Cogh.Event as Export
+import Graphics.Cogh.Image as Export
+import Graphics.Cogh.Text as Export
+import Graphics.Cogh.Window as Export

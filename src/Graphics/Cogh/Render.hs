@@ -1,15 +1,36 @@
 module Graphics.Cogh.Render
-  ( clear
+  ( newTexture
+  , clear
   , swapBuffers
   , drawRect
   , Texture
   , drawTexture
-  , deleteTexture
   , textureWidth
   , textureHeight
   ) where
 
-import Graphics.Cogh.CommonFFI
+import Foreign.C
+import Foreign.Ptr
+import Foreign.ForeignPtr
+import Graphics.Cogh.Window.Internal
+
+data Texture = Texture (ForeignPtr ()) Int Int
+
+newTexture :: Ptr () -> IO Texture
+newTexture p = do
+  foreignPtr <- newForeignPtr deleteTextureFunPtr p
+  width <- cTextureWidth p
+  height <- cTextureHeight p
+  return $ Texture foreignPtr (fromIntegral width) (fromIntegral height)
+
+textureWidth :: Texture -> Int
+textureWidth (Texture _ w _) = w
+
+textureHeight :: Texture -> Int
+textureHeight (Texture _ _ h) = h
+
+withCTexture :: Texture -> (Ptr () -> IO a) -> IO a
+withCTexture (Texture foreignPtr _ _) = withForeignPtr foreignPtr
 
 foreign import ccall unsafe "clear" clear
   :: Window -> IO ()
@@ -23,21 +44,24 @@ foreign import ccall unsafe "drawRect" drawRect
   -> Ptr Float
   -> IO ()
 
-foreign import ccall unsafe "drawTexture" drawTexture
+foreign import ccall unsafe "drawTexture" cDrawTexture
+  :: Window
+  -> Ptr Float
+  -> Ptr ()
+  -> IO ()
+drawTexture
   :: Window
   -> Ptr Float
   -> Texture
   -> IO ()
+drawTexture w matrix texture =
+  withCTexture texture $ cDrawTexture w matrix
 
-foreign import ccall unsafe "textureWidth" textureWidth'
-  :: Texture -> CInt
-textureWidth :: Texture -> Int
-textureWidth = fromIntegral . textureWidth'
+foreign import ccall unsafe "textureWidth" cTextureWidth
+  :: Ptr () -> IO CInt
 
-foreign import ccall unsafe "textureHeight" textureHeight'
-  :: Texture -> CInt
-textureHeight :: Texture -> Int
-textureHeight = fromIntegral . textureHeight'
+foreign import ccall unsafe "textureHeight" cTextureHeight
+  :: Ptr () -> IO CInt
 
-foreign import ccall unsafe "deleteTexture" deleteTexture
-  :: Texture -> IO ()
+foreign import ccall unsafe "&deleteTexture" deleteTextureFunPtr
+  :: FunPtr (Ptr () -> IO ())

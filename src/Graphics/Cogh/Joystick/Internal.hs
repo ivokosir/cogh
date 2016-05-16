@@ -9,7 +9,8 @@ module Graphics.Cogh.Joystick.Internal
   , getAxii
   ) where
 
-import Graphics.Cogh.CommonFFI
+import Graphics.Cogh.Event.Internal
+import Graphics.Cogh.Window.Internal
 
 data Button = Button Id Code State deriving (Eq, Read, Show)
 
@@ -52,24 +53,24 @@ foreign import ccall unsafe "getJoystickButtons" cGetButtons
   :: Window -> IO (Ptr (Ptr ()))
 
 foreign import ccall unsafe "joystickButtonId" buttonId
-  :: Ptr () -> IO (CInt)
+  :: Ptr () -> IO CInt
 
 foreign import ccall unsafe "joystickButtonIsPress" buttonIsPress
-  :: Ptr () -> IO (CInt)
+  :: Ptr () -> IO CInt
 
 foreign import ccall unsafe "joystickButtonCode" buttonCode
-  :: Ptr () -> IO (CUInt)
+  :: Ptr () -> IO CUInt
 
 
 foreign import ccall unsafe "getJoystickAxii" cGetAxii
   :: Window -> IO (Ptr (Ptr ()))
 
 foreign import ccall unsafe "joystickAxisId" axisId
-  :: Ptr () -> IO (CInt)
+  :: Ptr () -> IO CInt
 
 foreign import ccall unsafe "joystickAxisAxis" axisAxis
-  :: Ptr () -> IO (CUInt)
+  :: Ptr () -> IO CUInt
 
 foreign import ccall unsafe "joystickAxisValue" axisValue
-  :: Ptr () -> IO (CDouble)
+  :: Ptr () -> IO CDouble
 

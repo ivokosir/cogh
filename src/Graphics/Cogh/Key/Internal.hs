@@ -6,7 +6,8 @@ module Graphics.Cogh.Key.Internal
   )where
 
 import System.IO.Unsafe
-import Graphics.Cogh.CommonFFI
+import Graphics.Cogh.Event.Internal
+import Graphics.Cogh.Window.Internal
 
 data Key = Key Code State deriving (Eq, Read, Show)
 
