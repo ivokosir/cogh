@@ -7,7 +7,7 @@ module Graphics.Cogh.Mouse.Internal
   , getButtons
   , getPositions
   , getScrolls
-  )where
+  ) where
 
 import Graphics.Cogh.Event.Internal
 import Graphics.Cogh.Window.Internal

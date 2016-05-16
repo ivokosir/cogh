@@ -3,7 +3,7 @@ module Graphics.Cogh.Event
   , pollEvents
   , WindowSize
   , Quit
-  )where
+  ) where
 
 import Graphics.Cogh.Event.Internal
 import Graphics.Cogh.Window.Internal

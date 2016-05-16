@@ -3,7 +3,7 @@ module Graphics.Cogh.Key.Internal
   , Code (..)
   , State (..)
   , getKeys
-  )where
+  ) where
 
 import System.IO.Unsafe
 import Graphics.Cogh.Event.Internal

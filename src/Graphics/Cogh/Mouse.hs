@@ -4,6 +4,6 @@ module Graphics.Cogh.Mouse
   , State (..)
   , Position
   , Scroll
-  )where
+  ) where
 
 import Graphics.Cogh.Mouse.Internal

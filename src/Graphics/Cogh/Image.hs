@@ -1,6 +1,6 @@
 module Graphics.Cogh.Image
   ( newTextureFromImage
-  )where
+  ) where
 
 import Foreign.C
 import Foreign.Ptr

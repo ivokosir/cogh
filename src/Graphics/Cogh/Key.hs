@@ -2,6 +2,6 @@ module Graphics.Cogh.Key
   ( Key (..)
   , Code
   , State (..)
-  )where
+  ) where
 
 import Graphics.Cogh.Key.Internal

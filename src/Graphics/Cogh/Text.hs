@@ -3,7 +3,7 @@ module Graphics.Cogh.Text
   , newFont
   , fontSize
   , newTextureFromText
-  )where
+  ) where
 
 import Foreign.C
 import Foreign.Ptr
