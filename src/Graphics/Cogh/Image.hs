@@ -5,12 +5,17 @@ module Graphics.Cogh.Image
 import Foreign.C
 import Foreign.Ptr
 import Graphics.Cogh.Render
-import Graphics.Cogh.Window.Internal
+import Graphics.Cogh.Event
+
+type ImagePtr = Ptr ()
 
 newTextureFromImage :: Window -> FilePath -> IO Texture
-newTextureFromImage w file = do
-  cTexture <- withCString file $ cNewTextureFromImage w
+newTextureFromImage window file = do
+  cTexture <-
+    withCWindow window $ \ cWindow ->
+      withCString file $ \ cString ->
+        cNewTextureFromImage cWindow cString
   newTexture cTexture
 
 foreign import ccall unsafe "newTextureFromImage" cNewTextureFromImage
-  :: Window -> CString -> IO (Ptr ())
+  :: WindowPtr -> CString -> IO ImagePtr

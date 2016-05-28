@@ -1,7 +1,7 @@
 module Graphics.Cogh.Window.Internal
-  ( Window (..)
+  ( WindowPtr (..)
   ) where
 
 import Foreign.Ptr
 
-newtype Window = Window (Ptr ())
+newtype WindowPtr = WindowPtr (Ptr ())

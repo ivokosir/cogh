@@ -14,13 +14,16 @@ import Graphics.Cogh.Window.Internal
 
 import Prelude hiding (Left, Right)
 
-data Button = Button Code State deriving (Eq, Read, Show)
+data Button = Button
+  { code :: Code
+  , state ::State
+  } deriving (Eq, Read, Show)
 
 data Code = Left | Middle | Right | Other Int deriving (Eq, Read, Show)
 
 data State = Press | Release deriving (Eq, Read, Show)
 
-getButtons :: Window -> IO [Button]
+getButtons :: WindowPtr -> IO [Button]
 getButtons = getEvents cGetButtons castButton
 
 castButton :: Ptr () -> IO Button
@@ -31,19 +34,20 @@ castButton cButton = do
   isRight <- buttonIsRight cButton
   isPress <- buttonIsPress cButton
   let
-    code
+    code'
       | cBool isLeft = Left
       | cBool isMiddle = Middle
       | cBool isRight = Right
       | otherwise = Other (fromIntegral ccode)
-    state =
-      if cBool isPress then Press else Release
-  return $ Button code state
+  return Button
+    { code = code'
+    , state = if cBool isPress then Press else Release
+    }
 
 
 type Position = (Int, Int)
 
-getPositions :: Window -> IO [Position]
+getPositions :: WindowPtr -> IO [Position]
 getPositions = getEvents cGetPositions castPosition
 
 castPosition :: Ptr () -> IO Position
@@ -55,7 +59,7 @@ castPosition cPosition = do
 
 type Scroll = (Int, Int)
 
-getScrolls :: Window -> IO [Scroll]
+getScrolls :: WindowPtr -> IO [Scroll]
 getScrolls = getEvents cGetScrolls castScroll
 
 castScroll :: Ptr () -> IO Scroll
@@ -66,7 +70,7 @@ castScroll cScroll = do
 
 
 foreign import ccall unsafe "getMouseButtons" cGetButtons
-  :: Window -> IO (Ptr (Ptr ()))
+  :: WindowPtr -> IO (Ptr (Ptr ()))
 
 foreign import ccall unsafe "mouseButtonIsLeft" buttonIsLeft
   :: Ptr() -> IO CInt
@@ -85,7 +89,7 @@ foreign import ccall unsafe "mouseButtonCode" buttonCode
 
 
 foreign import ccall unsafe "getMousePositions" cGetPositions
-  :: Window -> IO (Ptr (Ptr ()))
+  :: WindowPtr -> IO (Ptr (Ptr ()))
 
 foreign import ccall unsafe "mousePositionX" positionX
   :: Ptr () -> IO CInt
@@ -95,7 +99,7 @@ foreign import ccall unsafe "mousePositionY" positionY
 
 
 foreign import ccall unsafe "getScrolls" cGetScrolls
-  :: Window -> IO (Ptr (Ptr ()))
+  :: WindowPtr -> IO (Ptr (Ptr ()))
 
 foreign import ccall unsafe "scrollX" scrollX
   :: Ptr () -> IO CInt

@@ -10,9 +10,11 @@ import Foreign.Ptr
 import Foreign.ForeignPtr
 import Graphics.Cogh.Color
 import Graphics.Cogh.Render
-import Graphics.Cogh.Window.Internal
+import Graphics.Cogh.Event
 
 data Font = Font (ForeignPtr ()) Int
+type FontPtr = Ptr ()
+type TextPtr = Ptr ()
 
 newFont :: FilePath -> Int -> IO Font
 newFont file size = do
@@ -23,23 +25,24 @@ newFont file size = do
 fontSize :: Font -> Int
 fontSize (Font _ size) = size
 
-withCFont :: Font -> (Ptr () -> IO a) -> IO a
+withCFont :: Font -> (FontPtr -> IO a) -> IO a
 withCFont (Font foreignPtr _) = withForeignPtr foreignPtr
 
 foreign import ccall unsafe "newFont" cNewFont
-  :: CString -> CInt -> IO (Ptr ())
+  :: CString -> CInt -> IO FontPtr
 
 foreign import ccall unsafe "&deleteFont" deleteFontFunPtr
-  :: FunPtr (Ptr () -> IO ())
+  :: FunPtr (FontPtr -> IO ())
 
 newTextureFromText :: Window -> Font -> String -> Color -> IO Texture
 newTextureFromText w f text color = do
   cTexture <-
-    withCFont f $ \ cFont ->
-      withCString text $ \ cText ->
-        withColorPtr color $ \ cColor ->
-          cNewTextureFromText w cFont cText cColor
+    withCWindow w $ \ cWindow ->
+      withCFont f $ \ cFont ->
+        withCString text $ \ cText ->
+          withColorPtr color $ \ cColor ->
+            cNewTextureFromText cWindow cFont cText cColor
   newTexture cTexture
 
 foreign import ccall unsafe "newTextureFromText" cNewTextureFromText
-  :: Window -> Ptr () -> CString -> Ptr Float -> IO (Ptr ())
+  :: WindowPtr -> FontPtr -> CString -> Ptr Float -> IO TextPtr

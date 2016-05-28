@@ -12,9 +12,12 @@ module Graphics.Cogh.Render
 import Foreign.C
 import Foreign.Ptr
 import Foreign.ForeignPtr
-import Graphics.Cogh.Window.Internal
+import Graphics.Cogh.Event
+import Graphics.Cogh.Matrix
+import Graphics.Cogh.Color
 
 data Texture = Texture (ForeignPtr ()) Int Int
+type TexturePtr = Ptr ()
 
 newTexture :: Ptr () -> IO Texture
 newTexture p = do
@@ -32,36 +35,50 @@ textureHeight (Texture _ _ h) = h
 withCTexture :: Texture -> (Ptr () -> IO a) -> IO a
 withCTexture (Texture foreignPtr _ _) = withForeignPtr foreignPtr
 
-foreign import ccall unsafe "clear" clear
-  :: Window -> IO ()
-
-foreign import ccall unsafe "swapBuffers" swapBuffers
-  :: Window -> IO ()
-
-foreign import ccall unsafe "drawRect" drawRect
-  :: Window
-  -> Ptr Float
-  -> Ptr Float
-  -> IO ()
+drawTexture :: Window -> Matrix -> Texture -> IO ()
+drawTexture w matrix texture =
+  withCWindow w $ \ cWindow ->
+    withMatrixPtr matrix $ \ cMatrix ->
+      withCTexture texture $ cDrawTexture cWindow cMatrix
 
 foreign import ccall unsafe "drawTexture" cDrawTexture
-  :: Window
+  :: WindowPtr
   -> Ptr Float
-  -> Ptr ()
+  -> TexturePtr
   -> IO ()
-drawTexture
-  :: Window
-  -> Ptr Float
-  -> Texture
-  -> IO ()
-drawTexture w matrix texture =
-  withCTexture texture $ cDrawTexture w matrix
 
 foreign import ccall unsafe "textureWidth" cTextureWidth
-  :: Ptr () -> IO CInt
+  :: TexturePtr -> IO CInt
 
 foreign import ccall unsafe "textureHeight" cTextureHeight
-  :: Ptr () -> IO CInt
+  :: TexturePtr -> IO CInt
 
 foreign import ccall unsafe "&deleteTexture" deleteTextureFunPtr
-  :: FunPtr (Ptr () -> IO ())
+  :: FunPtr (TexturePtr -> IO ())
+
+
+clear :: Window -> IO ()
+clear window = withCWindow window cClear
+
+foreign import ccall unsafe "clear" cClear
+  :: WindowPtr -> IO ()
+
+swapBuffers :: Window -> IO ()
+swapBuffers window = withCWindow window cSwapBuffers
+
+foreign import ccall unsafe "swapBuffers" cSwapBuffers
+  :: WindowPtr -> IO ()
+
+
+drawRect :: Window -> Matrix -> Color -> IO ()
+drawRect window matrix color =
+  withCWindow window $ \ cWindow ->
+    withMatrixPtr matrix $ \ cMatrix ->
+      withColorPtr color $ \ cColor ->
+        cDrawRect cWindow cMatrix cColor
+
+foreign import ccall unsafe "drawRect" cDrawRect
+  :: WindowPtr
+  -> Ptr Float
+  -> Ptr Float
+  -> IO ()

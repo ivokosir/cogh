@@ -9,8 +9,8 @@ module Graphics.Cogh.Element
   , renderRoot
   ) where
 
-import qualified Graphics.Cogh.Color as Export hiding (withColorPtr)
-import qualified Graphics.Cogh.Render as Export
+import Graphics.Cogh.Color as Export hiding (withColorPtr)
+import Graphics.Cogh.Render as Export
   ( Texture
   , textureWidth
   , textureHeight
@@ -18,8 +18,7 @@ import qualified Graphics.Cogh.Render as Export
 
 import Graphics.Cogh.Render
 import Graphics.Cogh.Window
-import Graphics.Cogh.Matrix
-import Graphics.Cogh.Color
+import Graphics.Cogh.Matrix hiding (withMatrixPtr)
 
 data Element = Element
   { position :: Position
@@ -65,10 +64,7 @@ emptyElement = Element
 rectangle :: Size -> Color -> Element
 rectangle rectSize color = emptyElement { size = rectSize, render = rectRender }
  where
-  rectRender e view window =
-    withMatrixPtr matrix $ \ mPtr ->
-      withColorPtr color $ \ colorPtr ->
-        drawRect window mPtr colorPtr
+  rectRender e view window = drawRect window matrix color
    where
     matrix = mconcat
       [ view
@@ -82,9 +78,7 @@ rectangle rectSize color = emptyElement { size = rectSize, render = rectRender }
 image :: Size -> Texture -> Element
 image rectSize texture = emptyElement { size = rectSize, render = textureRender }
  where
-  textureRender e view window =
-    withMatrixPtr matrix $ \ mPtr ->
-      drawTexture window mPtr texture
+  textureRender e view window = drawTexture window matrix texture
    where
     matrix = mconcat
       [ view

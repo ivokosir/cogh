@@ -11,9 +11,9 @@ import Foreign.Marshal.Array
 import Graphics.Cogh.Window.Internal
 
 getEvents
-  :: (Window -> IO (Ptr (Ptr ())))
+  :: (WindowPtr -> IO (Ptr (Ptr ())))
   -> (Ptr () -> IO a)
-  -> Window
+  -> WindowPtr
   -> IO [a]
 getEvents cGetEvents castEvent w = do
   ptrs <- peekArray0 nullPtr =<< cGetEvents w
