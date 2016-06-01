@@ -18,6 +18,7 @@ import Graphics.Cogh.Render as Export
 
 import Graphics.Cogh.Render
 import Graphics.Cogh.Window
+import Graphics.Cogh.Event
 import Graphics.Cogh.Matrix hiding (withMatrixPtr)
 
 data Element = Element
@@ -111,10 +112,11 @@ group es = emptyElement { render = renderGroup }
       , scaling (scale e)
       ]
 
-renderRoot :: Window -> Point -> Element -> IO ()
-renderRoot window renderArea e = do
+renderRoot :: Window -> Element -> IO ()
+renderRoot window e = do
+  matrix <- projection . pairToFloat . windowSize <$> getWindowState window
   clear window
   render e e matrix window
   swapBuffers window
  where
-  matrix = projection renderArea
+  pairToFloat (a, b) = (fromIntegral a, fromIntegral b)
