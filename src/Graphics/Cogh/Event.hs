@@ -3,10 +3,10 @@ module Graphics.Cogh.Event
   , Window (..)
   , WindowPtr (..)
   , withCWindow
+  , getWindowState
   , initialWindowState
   , pollEvents
   , WindowSize
-  , Quit
   ) where
 
 import Data.IORef
@@ -21,6 +21,9 @@ data Window = Window WindowPtr (IORef WindowState)
 withCWindow :: Window -> (WindowPtr -> IO a) -> IO a
 withCWindow (Window cWindow _) io = io cWindow
 
+getWindowState :: Window -> IO WindowState
+getWindowState (Window _ stateRef) = readIORef stateRef
+
 data WindowState = WindowState
   { keys :: [Key.Key]
   , pressedKeys :: [Key.Key]
@@ -34,12 +37,12 @@ data WindowState = WindowState
   , joystickAxii :: [Joystick.Axis]
   , windowSizes :: [WindowSize]
   , windowSize :: WindowSize
-  , quits :: [Quit]
+  , quit :: Bool
   }
 
 initialWindowState :: WindowState
 initialWindowState = WindowState
-  [] [] [] [] [] (0, 0) [] [] [] [] [] (0, 0) []
+  [] [] [] [] [] (0, 0) [] [] [] [] [] (0, 0) False
 
 pollEvents :: Window -> IO WindowState
 pollEvents window@(Window _ stateRef) = withCWindow window $ \ w -> do
@@ -53,7 +56,7 @@ pollEvents window@(Window _ stateRef) = withCWindow window $ \ w -> do
   newJoystickButtons <- Joystick.getButtons w
   newJoystickAxii    <- Joystick.getAxii w
   newWindowSizes     <- getWindowSizes w
-  newQuits           <- getQuits w
+  newQuit           <- getQuit w
 
   let
     newPressedKeys = getPressedButtons Button
@@ -89,7 +92,7 @@ pollEvents window@(Window _ stateRef) = withCWindow window $ \ w -> do
       newJoystickAxii
       newWindowSizes
       lastWindowSize
-      newQuits
+      newQuit
 
   writeIORef stateRef newState
   return newState
@@ -120,13 +123,8 @@ castWindowSize cWindowSize = do
   return (fromIntegral w, fromIntegral h)
 
 
-data Quit = Quit deriving (Eq, Read, Show)
-
-getQuits :: WindowPtr -> IO [Quit]
-getQuits = getEvents cGetQuits castQuit
-
-castQuit :: Ptr () -> IO Quit
-castQuit _ = return Quit
+getQuit :: WindowPtr -> IO Bool
+getQuit w = cBool <$> cGetQuit w
 
 
 foreign import ccall unsafe "pollEvents" cPollEvents
@@ -143,5 +141,5 @@ foreign import ccall unsafe "sizeH" windowSizeH
   :: Ptr () -> IO CUInt
 
 
-foreign import ccall unsafe "getQuits" cGetQuits
-  :: WindowPtr -> IO (Ptr (Ptr ()))
+foreign import ccall unsafe "getQuit" cGetQuit
+  :: WindowPtr -> IO CInt

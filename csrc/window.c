@@ -16,7 +16,6 @@ static void initEvents(void** events) {
 }
 
 static void initAllEvents(Window* w) {
-	initEvents((void**) w->quits);
 	initEvents((void**) w->keys);
 	initEvents((void**) w->sizes);
 	initEvents((void**) w->mouseButtons);
@@ -38,7 +37,6 @@ static void clearEvents(void** events) {
 }
 
 void clearAllEvents(Window* w) {
-	clearEvents((void**) w->quits);
 	clearEvents((void**) w->keys);
 	clearEvents((void**) w->sizes);
 	clearEvents((void**) w->mouseButtons);

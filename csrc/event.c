@@ -49,8 +49,7 @@ static void pollEvent(Window* w, SDL_Event event) {
 		glViewport(0, 0, size->w, size->h);
 		addEvent((void**) w->sizes, size);
 	} else if (event.type == SDL_QUIT) {
-		Quit* quit = malloc(sizeof(Quit));
-		addEvent((void**) w->quits, quit);
+		w->quit = 1;
 	}
 }
 
@@ -63,7 +62,11 @@ void pollEvents(Window* w) {
 	}
 }
 
-Quit** getQuits(Window* w) { return w->quits; }
+int getQuit(Window* w) {
+	int quit = w->quit;
+	w->quit = 0;
+	return quit;
+}
 
 Size** getSizes(Window* w) { return w->sizes; }
 unsigned int sizeW(Size* r) { return r->w; }

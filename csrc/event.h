@@ -4,9 +4,7 @@
 
 void pollEvents(Window*);
 
-typedef struct Quit Quit;
-
-Quit** getQuits(Window*);
+int getQuit(Window*);
 
 typedef struct Size Size;
 

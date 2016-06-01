@@ -1,8 +1,5 @@
 #pragma once
 
-struct Quit {
-};
-
 struct Key {
 	int isPress;
 	int isRepeat;

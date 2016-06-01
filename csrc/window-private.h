@@ -23,7 +23,7 @@ struct Window {
 	GLint shaderColor;
 	GLint shaderTexture;
 
-	Quit* quits[EVENTS_SIZE];
+	int quit;
 	Key* keys[EVENTS_SIZE];
 	Size* sizes[EVENTS_SIZE];
 	MouseButton* mouseButtons[EVENTS_SIZE];
