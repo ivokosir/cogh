@@ -4,10 +4,10 @@
 
 typedef struct Joystick Joystick;
 
-Joystick** getJoystickAddEvents(Window*);
-Joystick** getJoystickRemoveEvents(Window*);
+Joystick** getJoysticks(Window*);
 unsigned int getJoystickId(Joystick*);
 int getJoystickNumberOfAxii(Joystick*);
+int getJoystickIsAdd(Joystick*);
 
 typedef struct JoystickButton JoystickButton;
 

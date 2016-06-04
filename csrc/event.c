@@ -42,20 +42,19 @@ static void pollEvent(Window* w, SDL_Event event) {
         addEvent((void**) w->joystickAxii, joystickAxis);
     } else if (event.type == SDL_JOYDEVICEADDED || event.type == SDL_JOYDEVICEREMOVED) {
         Joystick* joystick = malloc(sizeof(Joystick));
+        joystick->isAdd = event.type == SDL_JOYDEVICEADDED;
         SDL_Joystick* sdlJoystick;
-        if (event.type == SDL_JOYDEVICEADDED) {
+        if (joystick->isAdd) {
             sdlJoystick = SDL_JoystickOpen(event.jdevice.which);
         } else {
             sdlJoystick = SDL_JoystickFromInstanceID(event.jdevice.which);
         }
         joystick->id = SDL_JoystickInstanceID(sdlJoystick);
         joystick->numberOfAxii = SDL_JoystickNumAxes(sdlJoystick);
-        if (event.type == SDL_JOYDEVICEADDED) {
-            addEvent((void**) w->joystickAddEvents, joystick);
-        } else {
+        if (!joystick->isAdd) {
             SDL_JoystickClose(sdlJoystick);
-            addEvent((void**) w->joystickRemoveEvents, joystick);
         }
+        addEvent((void**) w->joysticks, joystick);
     } else if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
         Size* size = malloc(sizeof(Size));
         size->w = event.window.data1;

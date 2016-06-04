@@ -29,6 +29,7 @@ struct Scroll {
 struct Joystick {
     unsigned int id;
     int numberOfAxii;
+    int isAdd;
 };
 
 struct JoystickButton {
