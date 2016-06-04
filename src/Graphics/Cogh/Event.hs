@@ -32,9 +32,9 @@ data WindowState = WindowState
   , mousePositions :: [Mouse.Position]
   , mousePosition :: Mouse.Position
   , mouseScrolls :: [Mouse.Scroll]
-  , joystickButtons :: [Joystick.Button]
-  , pressedJoystickButtons :: [Joystick.Button]
-  , joystickAxii :: [Joystick.Axis]
+  , joystickButtons :: [(Joystick.Id, Joystick.Button)]
+  , joystickAxii :: [(Joystick.Id, Joystick.Axis)]
+  , joysticks :: [Joystick.Joystick]
   , windowSizes :: [WindowSize]
   , windowSize :: WindowSize
   , quit :: Bool
@@ -56,7 +56,7 @@ pollEvents window@(Window _ stateRef) = withCWindow window $ \ w -> do
   newJoystickButtons <- Joystick.getButtons w
   newJoystickAxii    <- Joystick.getAxii w
   newWindowSizes     <- getWindowSizes w
-  newQuit           <- getQuit w
+  newQuit            <- getQuit w
 
   let
     newPressedKeys = getPressedButtons Button
@@ -71,12 +71,12 @@ pollEvents window@(Window _ stateRef) = withCWindow window $ \ w -> do
       , newButtons = newMouseButtons
       , oldPressedButtons = pressedMouseButtons oldState
       }
-    newPressedJoystickButtons = getPressedButtons Button
-      { isPressed = (==) Joystick.Press . Joystick.state
-      , code = \ j -> (Joystick.id j, Joystick.code j)
-      , newButtons = newJoystickButtons
-      , oldPressedButtons = pressedJoystickButtons oldState
-      }
+    --newPressedJoystickButtons = getPressedButtons Button
+    --  { isPressed = \ (_, j) -> Joystick.state j == Joystick.Press
+    --  , code = \ (joystickId, j) -> (joystickId, Joystick.code j)
+    --  , newButtons = newJoystickButtons
+    --  , oldPressedButtons = pressedJoystickButtons oldState
+    --  }
     lastMousePosition = last $ mousePosition oldState : newMousePositions
     lastWindowSize = last $ windowSize oldState : newWindowSizes
     newState = WindowState
@@ -88,8 +88,8 @@ pollEvents window@(Window _ stateRef) = withCWindow window $ \ w -> do
       lastMousePosition
       newMouseScrolls
       newJoystickButtons
-      newPressedJoystickButtons
       newJoystickAxii
+      []
       newWindowSizes
       lastWindowSize
       newQuit

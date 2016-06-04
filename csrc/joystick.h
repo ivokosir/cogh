@@ -2,6 +2,13 @@
 
 #include "window.h"
 
+typedef struct Joystick Joystick;
+
+Joystick** getJoystickAddEvents(Window*);
+Joystick** getJoystickRemoveEvents(Window*);
+unsigned int getJoystickId(Joystick*);
+int getJoystickNumberOfAxii(Joystick*);
+
 typedef struct JoystickButton JoystickButton;
 
 JoystickButton** getJoystickButtons(Window*);

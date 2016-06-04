@@ -31,6 +31,8 @@ struct Window {
 	Scroll* scrolls[EVENTS_SIZE];
 	JoystickButton* joystickButtons[EVENTS_SIZE];
 	JoystickAxis* joystickAxii[EVENTS_SIZE];
+	Joystick* joystickAddEvents[EVENTS_SIZE];
+	Joystick* joystickRemoveEvents[EVENTS_SIZE];
 };
 
 void clearAllEvents(Window* w);

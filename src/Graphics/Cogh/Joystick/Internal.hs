@@ -1,6 +1,7 @@
 module Graphics.Cogh.Joystick.Internal
-  ( Button (..)
+  ( Joystick (..)
   , Id
+  , Button (..)
   , Code
   , State (..)
   , Axis (..)
@@ -14,47 +15,62 @@ import Prelude hiding (id)
 import Graphics.Cogh.Event.Internal
 import Graphics.Cogh.Window.Internal
 
-data Button = Button
+data Joystick = Joystick
   { id :: Id
-  , code :: Code
-  , state :: State
-  } deriving (Eq, Read, Show)
+  , buttons :: [Button]
+  , axii :: [Axis]
+  }
 
 type Id = Int
+
+data Button = Button
+  { code :: Code
+  , state :: State
+  } deriving (Eq, Read, Show)
 
 type Code = Int
 
 data State = Press | Release deriving (Eq, Read, Show)
 
-getButtons :: WindowPtr -> IO [Button]
+getButtons :: WindowPtr -> IO [(Id, Button)]
 getButtons = getEvents cGetButtons castButton
 
-castButton :: Ptr () -> IO Button
+castButton :: Ptr () -> IO (Id, Button)
 castButton cButton = do
   joystickId <- buttonId cButton
   cCode <- buttonCode cButton
   isPress <- buttonIsPress cButton
-  return Button
-    { id = fromIntegral joystickId
-    , code = fromIntegral cCode
-    , state = if cBool isPress then Press else Release
-    }
+  return
+    ( fromIntegral joystickId
+    , Button
+      { code = fromIntegral cCode
+      , state = if cBool isPress then Press else Release
+      }
+    )
 
 
-data Axis = Axis Id AxisId Double deriving (Eq, Read, Show)
+data Axis = Axis
+  { axisId :: AxisId
+  , value :: Double
+  } deriving (Eq, Read, Show)
 
 type AxisId = Int
 
-getAxii :: WindowPtr -> IO [Axis]
+getAxii :: WindowPtr -> IO [(Id, Axis)]
 getAxii = getEvents cGetAxii castAxis
 
-castAxis :: Ptr () -> IO Axis
+castAxis :: Ptr () -> IO (Id, Axis)
 castAxis cAxis = do
-  joystickId <- axisId cAxis
+  joystickId <- cAxisId cAxis
   axis <- axisAxis cAxis
-  value <- axisValue cAxis
-  return $ Axis (fromIntegral joystickId)
-    (fromIntegral axis) (realToFrac value)
+  cValue <- axisValue cAxis
+  return
+    ( fromIntegral joystickId
+    , Axis
+      { axisId = fromIntegral axis
+      , value = realToFrac cValue
+      }
+    )
 
 
 foreign import ccall unsafe "getJoystickButtons" cGetButtons
@@ -73,7 +89,7 @@ foreign import ccall unsafe "joystickButtonCode" buttonCode
 foreign import ccall unsafe "getJoystickAxii" cGetAxii
   :: WindowPtr -> IO (Ptr (Ptr ()))
 
-foreign import ccall unsafe "joystickAxisId" axisId
+foreign import ccall unsafe "joystickAxisId" cAxisId
   :: Ptr () -> IO CInt
 
 foreign import ccall unsafe "joystickAxisAxis" axisAxis

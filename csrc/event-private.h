@@ -26,6 +26,11 @@ struct Scroll {
 	int y;
 };
 
+struct Joystick {
+	unsigned int id;
+	int numberOfAxii;
+};
+
 struct JoystickButton {
 	unsigned int id;
 	int isPress;

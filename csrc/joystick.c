@@ -2,6 +2,11 @@
 
 #include "joystick.h"
 
+Joystick** getJoystickAddEvents(Window* w) { return w->joystickAddEvents; }
+Joystick** getJoystickRemoveEvents(Window* w) { return w->joystickRemoveEvents; }
+unsigned int getJoystickId(Joystick* j) { return j->id; }
+int getJoystickNumberOfAxii(Joystick* j) { return j->numberOfAxii; }
+
 JoystickButton** getJoystickButtons(Window* w) { return w->joystickButtons; }
 unsigned int joystickButtonId(JoystickButton* jb) { return jb->id; }
 int joystickButtonIsPress(JoystickButton* jb) { return jb->isPress; }

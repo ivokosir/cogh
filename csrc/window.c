@@ -16,6 +16,7 @@ static void initEvents(void** events) {
 }
 
 static void initAllEvents(Window* w) {
+	w->quit = 0;
 	initEvents((void**) w->keys);
 	initEvents((void**) w->sizes);
 	initEvents((void**) w->mouseButtons);
@@ -23,6 +24,8 @@ static void initAllEvents(Window* w) {
 	initEvents((void**) w->scrolls);
 	initEvents((void**) w->joystickButtons);
 	initEvents((void**) w->joystickAxii);
+	initEvents((void**) w->joystickAddEvents);
+	initEvents((void**) w->joystickRemoveEvents);
 }
 
 static void clearEvents(void** events) {
@@ -37,6 +40,7 @@ static void clearEvents(void** events) {
 }
 
 void clearAllEvents(Window* w) {
+	w->quit = 0;
 	clearEvents((void**) w->keys);
 	clearEvents((void**) w->sizes);
 	clearEvents((void**) w->mouseButtons);
@@ -44,6 +48,8 @@ void clearAllEvents(Window* w) {
 	clearEvents((void**) w->scrolls);
 	clearEvents((void**) w->joystickButtons);
 	clearEvents((void**) w->joystickAxii);
+	clearEvents((void**) w->joystickAddEvents);
+	clearEvents((void**) w->joystickRemoveEvents);
 }
 
 void addEvent(void** events, void* event) {
