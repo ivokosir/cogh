@@ -7,16 +7,16 @@ void clear(Window*);
 void swapBuffers(Window*);
 
 void drawRect(
-		Window* window,
-		float* mvp,
-		float* color);
+        Window* window,
+        float* mvp,
+        float* color);
 
 typedef struct Texture Texture;
 
 void drawTexture(
-		Window* window,
-		float* mvp,
-		Texture* t);
+        Window* window,
+        float* mvp,
+        Texture* t);
 
 int textureWidth(Texture*);
 

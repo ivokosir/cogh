@@ -8,5 +8,5 @@
 
 
 Texture* newTextureFromImage(Window* w, const char* file) {
-	return surfaceToTexture(IMG_Load(file));
+    return surfaceToTexture(IMG_Load(file));
 }

@@ -8,9 +8,9 @@ int keyIsRepeat(Key* k) { return k->isRepeat; }
 unsigned int keyCode(Key* k) { return k->code; }
 
 unsigned int readCode(const char* name) {
-	return SDL_GetKeyFromName(name);
+    return SDL_GetKeyFromName(name);
 }
 
 const char* showCode(unsigned int code) {
-	return SDL_GetKeyName(code);
+    return SDL_GetKeyName(code);
 }

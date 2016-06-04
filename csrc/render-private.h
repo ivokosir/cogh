@@ -6,13 +6,13 @@
 #include <SDL_ttf.h>
 
 struct Texture {
-	GLuint id;
-	int width;
-	int height;
+    GLuint id;
+    int width;
+    int height;
 };
 
 struct Font {
-	TTF_Font* ttf_font;
+    TTF_Font* ttf_font;
 };
 
 struct Texture* surfaceToTexture(SDL_Surface* surface);
