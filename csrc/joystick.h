@@ -5,9 +5,9 @@
 typedef struct Joystick Joystick;
 
 Joystick** getJoysticks(Window*);
-unsigned int getJoystickId(Joystick*);
-int getJoystickNumberOfAxii(Joystick*);
-int getJoystickIsAdd(Joystick*);
+unsigned int joystickId(Joystick*);
+int joystickNumberOfAxii(Joystick*);
+int joystickIsAdd(Joystick*);
 
 typedef struct JoystickButton JoystickButton;
 

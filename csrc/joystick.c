@@ -3,9 +3,9 @@
 #include "joystick.h"
 
 Joystick** getJoysticks(Window* w) { return w->joysticks; }
-unsigned int getJoystickId(Joystick* j) { return j->id; }
-int getJoystickNumberOfAxii(Joystick* j) { return j->numberOfAxii; }
-int getJoystickIsAdd(Joystick* j) { return j->isAdd; }
+unsigned int joystickId(Joystick* j) { return j->id; }
+int joystickNumberOfAxii(Joystick* j) { return j->numberOfAxii; }
+int joystickIsAdd(Joystick* j) { return j->isAdd; }
 
 JoystickButton** getJoystickButtons(Window* w) { return w->joystickButtons; }
 unsigned int joystickButtonId(JoystickButton* jb) { return jb->id; }
