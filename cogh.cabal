@@ -38,6 +38,7 @@ library
     Graphics.Cogh.Joystick
 
   other-modules:
+    Graphics.Cogh.Button,
     Graphics.Cogh.Color,
     Graphics.Cogh.Matrix,
     Graphics.Cogh.Render,
