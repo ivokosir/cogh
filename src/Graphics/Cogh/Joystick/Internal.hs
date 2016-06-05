@@ -14,6 +14,7 @@ module Graphics.Cogh.Joystick.Internal
 import Prelude hiding (id)
 
 import Data.List
+import qualified Graphics.Cogh.Button as Button
 import Graphics.Cogh.Event.Internal
 import Graphics.Cogh.Window.Internal
 
@@ -30,20 +31,24 @@ getJoysticks w oldJoysticks = do
   addOrRemove old (addId, numOfAxii, True) = Joystick
     { id = addId
     , buttons = []
+    , pressedButtons = []
     , axii = fmap newEmptyAxis [0, 1..numOfAxii-1]
     } : old
-  addOrRemove old (removeId, _, _) = filter (\ j -> id j == removeId) old
+  addOrRemove old (removeId, _, _) = filter (\ j -> id j /= removeId) old
   newEmptyAxis newAxisId = Axis newAxisId 0
 
 addButtonsAndAxii :: [(Id, Button)] -> [(Id, Axis)] -> Joystick -> Joystick
 addButtonsAndAxii newButtonsWithId newAxiiWithId joystick = joystick
   { buttons = thisButtons
+  , pressedButtons = newPressedButtons
   , axii = newAxii
   }
  where
   isThis (newId, _) = newId == id joystick
   thisButtonsWithIds = filter isThis newButtonsWithId
   thisButtons = fmap snd thisButtonsWithIds
+  oldPressedButtons = pressedButtons joystick
+  newPressedButtons = Button.getPressedButtons thisButtons oldPressedButtons
   thisAxiiWithIds = filter isThis newAxiiWithId
   thisAxii = fmap snd thisAxiiWithIds
   oldAxii = axii joystick
@@ -57,6 +62,7 @@ addButtonsAndAxii newButtonsWithId newAxiiWithId joystick = joystick
 data Joystick = Joystick
   { id :: Id
   , buttons :: [Button]
+  , pressedButtons :: [Button]
   , axii :: [Axis]
   }
 
@@ -81,6 +87,11 @@ data Button = Button
   { code :: Code
   , state :: State
   } deriving (Eq, Read, Show)
+
+instance Button.Button Button where
+  isPressed (Button _ Press) = True
+  isPressed _ = False
+  isSame a b = code a == code b
 
 type Code = Int
 
