@@ -27,7 +27,7 @@ struct Window {
     Key* keys[EVENTS_SIZE];
     Size* sizes[EVENTS_SIZE];
     MouseButton* mouseButtons[EVENTS_SIZE];
-    MousePosition* mousePositions[EVENTS_SIZE];
+    MouseMotion* mouseMotions[EVENTS_SIZE];
     Scroll* scrolls[EVENTS_SIZE];
     JoystickButton* joystickButtons[EVENTS_SIZE];
     JoystickAxis* joystickAxii[EVENTS_SIZE];

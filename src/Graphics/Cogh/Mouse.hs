@@ -2,6 +2,7 @@ module Graphics.Cogh.Mouse
   ( Button (..)
   , Code (..)
   , State (..)
+  , Motion (..)
   , Position
   , Scroll
   ) where

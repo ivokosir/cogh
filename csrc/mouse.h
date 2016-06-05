@@ -11,11 +11,13 @@ int mouseButtonIsRight(MouseButton*);
 int mouseButtonIsPress(MouseButton*);
 unsigned int mouseButtonCode(MouseButton*);
 
-typedef struct MousePosition MousePosition;
+typedef struct MouseMotion MouseMotion;
 
-MousePosition** getMousePositions(Window*);
-int mousePositionX(MousePosition*);
-int mousePositionY(MousePosition*);
+MouseMotion** getMouseMotions(Window*);
+int mouseMotionX(MouseMotion*);
+int mouseMotionY(MouseMotion*);
+int mouseMotionRelativeX(MouseMotion*);
+int mouseMotionRelativeY(MouseMotion*);
 
 typedef struct Scroll Scroll;
 

@@ -20,7 +20,7 @@ static void initAllEvents(Window* w) {
     initEvents((void**) w->keys);
     initEvents((void**) w->sizes);
     initEvents((void**) w->mouseButtons);
-    initEvents((void**) w->mousePositions);
+    initEvents((void**) w->mouseMotions);
     initEvents((void**) w->scrolls);
     initEvents((void**) w->joystickButtons);
     initEvents((void**) w->joystickAxii);
@@ -43,7 +43,7 @@ void clearAllEvents(Window* w) {
     clearEvents((void**) w->keys);
     clearEvents((void**) w->sizes);
     clearEvents((void**) w->mouseButtons);
-    clearEvents((void**) w->mousePositions);
+    clearEvents((void**) w->mouseMotions);
     clearEvents((void**) w->scrolls);
     clearEvents((void**) w->joystickButtons);
     clearEvents((void**) w->joystickAxii);

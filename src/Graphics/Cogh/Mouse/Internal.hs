@@ -2,10 +2,11 @@ module Graphics.Cogh.Mouse.Internal
   ( Button (..)
   , Code (..)
   , State (..)
+  , Motion (..)
   , Position
   , Scroll
   , getButtons
-  , getPositions
+  , getMotions
   , getScrolls
   ) where
 
@@ -53,14 +54,24 @@ castButton cButton = do
 
 type Position = (Int, Int)
 
-getPositions :: WindowPtr -> IO [Position]
-getPositions = getEvents cGetPositions castPosition
+data Motion = Motion
+  { position :: Position
+  , motion :: (Int, Int)
+  }
 
-castPosition :: Ptr () -> IO Position
-castPosition cPosition = do
-  x <- positionX cPosition
-  y <- positionY cPosition
-  return (fromIntegral x, fromIntegral y)
+getMotions :: WindowPtr -> IO [Motion]
+getMotions = getEvents cGetMotions castMotion
+
+castMotion :: Ptr () -> IO Motion
+castMotion cMotion = do
+  positionX <- motionPositionX cMotion
+  positionY <- motionPositionY cMotion
+  cMotionX <- motionMotionX cMotion
+  cMotionY <- motionMotionY cMotion
+  return Motion
+    { position = (fromIntegral positionX, fromIntegral positionY)
+    , motion = (fromIntegral cMotionX, fromIntegral cMotionY)
+    }
 
 
 type Scroll = (Int, Int)
@@ -94,13 +105,19 @@ foreign import ccall unsafe "mouseButtonCode" buttonCode
   :: Ptr() -> IO CUInt
 
 
-foreign import ccall unsafe "getMousePositions" cGetPositions
+foreign import ccall unsafe "getMouseMotions" cGetMotions
   :: WindowPtr -> IO (Ptr (Ptr ()))
 
-foreign import ccall unsafe "mousePositionX" positionX
+foreign import ccall unsafe "mouseMotionPositionX" motionPositionX
   :: Ptr () -> IO CInt
 
-foreign import ccall unsafe "mousePositionY" positionY
+foreign import ccall unsafe "mouseMotionPositionY" motionPositionY
+  :: Ptr () -> IO CInt
+
+foreign import ccall unsafe "mouseMotionMotionX" motionMotionX
+  :: Ptr () -> IO CInt
+
+foreign import ccall unsafe "mouseMotionMotionY" motionMotionY
   :: Ptr () -> IO CInt
 
 

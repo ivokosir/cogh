@@ -16,9 +16,11 @@ struct MouseButton {
     unsigned int code;
 };
 
-struct MousePosition {
-    int x;
-    int y;
+struct MouseMotion {
+    int positionX;
+    int positionY;
+    int motionX;
+    int motionY;
 };
 
 struct Scroll {

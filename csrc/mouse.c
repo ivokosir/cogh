@@ -9,9 +9,11 @@ int mouseButtonIsMiddle(MouseButton* mb) { return mb->code == SDL_BUTTON_MIDDLE;
 int mouseButtonIsRight(MouseButton* mb) { return mb->code == SDL_BUTTON_RIGHT; }
 unsigned int mouseButtonCode(MouseButton* mb) { return mb->code; }
 
-MousePosition** getMousePositions(Window* w) { return w->mousePositions; }
-int mousePositionX(MousePosition* mp) { return mp->x; }
-int mousePositionY(MousePosition* mp) { return mp->y; }
+MouseMotion** getMouseMotions(Window* w) { return w->mouseMotions; }
+int mouseMotionPositionX(MouseMotion* mp) { return mp->positionX; }
+int mouseMotionPositionY(MouseMotion* mp) { return mp->positionY; }
+int mouseMotionMotionX(MouseMotion* mp) { return mp->motionX; }
+int mouseMotionMotionY(MouseMotion* mp) { return mp->motionY; }
 
 Scroll** getScrolls(Window* w) { return w->scrolls; }
 int scrollX(Scroll* s) { return s->x; }

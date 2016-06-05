@@ -17,10 +17,12 @@ static void pollEvent(Window* w, SDL_Event event) {
         mouseButton->code = event.button.button;
         addEvent((void**) w->mouseButtons, mouseButton);
     } else if (event.type == SDL_MOUSEMOTION) {
-        MousePosition* mousePosition = malloc(sizeof(MousePosition));
-        mousePosition->x = event.motion.x;
-        mousePosition->y = event.motion.y;
-        addEvent((void**) w->mousePositions, mousePosition);
+        MouseMotion* mouseMotion = malloc(sizeof(MouseMotion));
+        mouseMotion->positionX = event.motion.x;
+        mouseMotion->positionY = event.motion.y;
+        mouseMotion->motionX = event.motion.xrel;
+        mouseMotion->motionY = event.motion.yrel;
+        addEvent((void**) w->mouseMotions, mouseMotion);
     } else if (event.type == SDL_MOUSEWHEEL) {
         Scroll* scroll = malloc(sizeof(Scroll));
         scroll->x = event.wheel.x;

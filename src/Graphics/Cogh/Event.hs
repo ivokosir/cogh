@@ -30,8 +30,8 @@ data WindowState = WindowState
   , pressedKeys :: [Key.Key]
   , mouseButtons :: [Mouse.Button]
   , pressedMouseButtons :: [Mouse.Button]
-  , mousePositions :: [Mouse.Position]
-  , mousePosition :: Mouse.Position
+  , mouseMotions :: [Mouse.Motion]
+  , mousePosition :: (Int, Int)
   , mouseScrolls :: [Mouse.Scroll]
   , joysticks :: [Joystick.Joystick]
   , windowSizes :: [WindowSize]
@@ -48,28 +48,28 @@ pollEvents window@(Window _ stateRef) = withCWindow window $ \ w -> do
   oldState <- readIORef stateRef
   cPollEvents w
 
-  newKeys           <- Key.getKeys w
-  newMouseButtons   <- Mouse.getButtons w
-  newMousePositions <- Mouse.getPositions w
-  newMouseScrolls   <- Mouse.getScrolls w
-  newJoysticks      <- Joystick.getJoysticks w (joysticks oldState)
-  newWindowSizes    <- getWindowSizes w
-  newQuit           <- getQuit w
+  newKeys         <- Key.getKeys w
+  newMouseButtons <- Mouse.getButtons w
+  newMouseMotions <- Mouse.getMotions w
+  newMouseScrolls <- Mouse.getScrolls w
+  newJoysticks    <- Joystick.getJoysticks w (joysticks oldState)
+  newWindowSizes  <- getWindowSizes w
+  newQuit         <- getQuit w
 
   let
     newPressedKeys =
       getPressedButtons newKeys (pressedKeys oldState)
     newPressedMouseButtons =
       getPressedButtons newMouseButtons (pressedMouseButtons oldState)
-    lastMousePosition = last $ mousePosition oldState : newMousePositions
+    newMousePosition = last $ mousePosition oldState : fmap Mouse.position newMouseMotions
     lastWindowSize = last $ windowSize oldState : newWindowSizes
     newState = WindowState
       newKeys
       newPressedKeys
       newMouseButtons
       newPressedMouseButtons
-      newMousePositions
-      lastMousePosition
+      newMouseMotions
+      newMousePosition
       newMouseScrolls
       newJoysticks
       newWindowSizes
