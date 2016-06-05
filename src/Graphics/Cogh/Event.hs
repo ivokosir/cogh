@@ -10,6 +10,7 @@ module Graphics.Cogh.Event
   ) where
 
 import Data.IORef
+import Graphics.Cogh.Button
 import Graphics.Cogh.Event.Internal
 import Graphics.Cogh.Window.Internal
 import qualified Graphics.Cogh.Key.Internal as Key
@@ -56,18 +57,10 @@ pollEvents window@(Window _ stateRef) = withCWindow window $ \ w -> do
   newQuit           <- getQuit w
 
   let
-    newPressedKeys = getPressedButtons Button
-      { isPressed = (/=) Key.Release . Key.state
-      , code = Key.code
-      , newButtons = newKeys
-      , oldPressedButtons = pressedKeys oldState
-      }
-    newPressedMouseButtons = getPressedButtons Button
-      { isPressed = (==) Mouse.Press . Mouse.state
-      , code = Mouse.code
-      , newButtons = newMouseButtons
-      , oldPressedButtons = pressedMouseButtons oldState
-      }
+    newPressedKeys =
+      getPressedButtons newKeys (pressedKeys oldState)
+    newPressedMouseButtons =
+      getPressedButtons newMouseButtons (pressedMouseButtons oldState)
     lastMousePosition = last $ mousePosition oldState : newMousePositions
     lastWindowSize = last $ windowSize oldState : newWindowSizes
     newState = WindowState
@@ -85,20 +78,6 @@ pollEvents window@(Window _ stateRef) = withCWindow window $ \ w -> do
 
   writeIORef stateRef newState
   return newState
-
-data Button a b = Button
-  { isPressed :: a -> Bool
-  , code :: a -> b
-  , newButtons :: [a]
-  , oldPressedButtons :: [a]
-  }
-getPressedButtons :: (Eq b) => Button a b -> [a]
-getPressedButtons (Button isPressed' code' newButtons' oldPressedButtons') =
-  newPressedButtons ++ filter isInNewButtons oldPressedButtons'
- where
-  isSame a b = code' a == code' b
-  isInNewButtons button = not $ any (isSame button) newPressedButtons
-  newPressedButtons = filter isPressed' newButtons'
 
 type WindowSize = (Int, Int)
 

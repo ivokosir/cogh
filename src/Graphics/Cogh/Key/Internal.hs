@@ -6,6 +6,7 @@ module Graphics.Cogh.Key.Internal
   ) where
 
 import System.IO.Unsafe
+import Graphics.Cogh.Button
 import Graphics.Cogh.Event.Internal
 import Graphics.Cogh.Window.Internal
 
@@ -13,6 +14,11 @@ data Key = Key
   { code :: Code
   , state :: State
   } deriving (Eq, Read, Show)
+
+instance Button Key where
+  isPressed (Key _ (Press _)) = True
+  isPressed _ = False
+  isSame a b = code a == code b
 
 newtype Code = Code CUInt deriving (Eq)
 

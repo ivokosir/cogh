@@ -9,6 +9,7 @@ module Graphics.Cogh.Mouse.Internal
   , getScrolls
   ) where
 
+import qualified Graphics.Cogh.Button as Button
 import Graphics.Cogh.Event.Internal
 import Graphics.Cogh.Window.Internal
 
@@ -18,6 +19,11 @@ data Button = Button
   { code :: Code
   , state ::State
   } deriving (Eq, Read, Show)
+
+instance Button.Button Button where
+  isPressed (Button _ Press) = True
+  isPressed _ = False
+  isSame a b = code a == code b
 
 data Code = Left | Middle | Right | Other Int deriving (Eq, Read, Show)
 
