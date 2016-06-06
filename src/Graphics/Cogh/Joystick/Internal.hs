@@ -64,7 +64,7 @@ data Joystick = Joystick
   , buttons :: [Button]
   , pressedButtons :: [Button]
   , axii :: [Axis]
-  }
+  } deriving (Eq, Show, Read)
 
 type Id = Int
 

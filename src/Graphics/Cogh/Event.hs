@@ -37,7 +37,7 @@ data WindowState = WindowState
   , windowSizes :: [WindowSize]
   , windowSize :: WindowSize
   , quit :: Bool
-  }
+  } deriving (Eq, Show, Read)
 
 initialWindowState :: WindowState
 initialWindowState = WindowState

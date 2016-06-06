@@ -57,7 +57,7 @@ type Position = (Int, Int)
 data Motion = Motion
   { position :: Position
   , motion :: (Int, Int)
-  }
+  } deriving (Eq, Show, Read)
 
 getMotions :: WindowPtr -> IO [Motion]
 getMotions = getEvents cGetMotions castMotion
