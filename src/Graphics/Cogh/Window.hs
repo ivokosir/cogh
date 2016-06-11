@@ -11,7 +11,6 @@ import Data.Word
 import Foreign.C
 import Foreign.Ptr
 import Graphics.Cogh.Event
-import Graphics.Cogh.Window.Internal
 
 newWindow :: String -> IO (Maybe Window)
 newWindow title = do
