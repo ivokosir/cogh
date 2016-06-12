@@ -76,8 +76,10 @@ rectangle rectSize color = emptyElement { size = rectSize, render = rectRender }
       , translation (negate $ origin e)
       ]
 
-image :: Size -> Texture -> Element
-image rectSize texture = emptyElement { size = rectSize, render = textureRender }
+image :: Texture -> Element
+image texture = emptyElement
+  { size = fromIntegral <$> textureSize texture
+  , render = textureRender }
  where
   textureRender e view window = drawTexture window matrix texture
    where
