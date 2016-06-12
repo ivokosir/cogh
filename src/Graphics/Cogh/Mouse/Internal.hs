@@ -12,6 +12,7 @@ module Graphics.Cogh.Mouse.Internal
 
 import qualified Graphics.Cogh.Button as Button
 import Graphics.Cogh.Event.Internal
+import Graphics.Cogh.Vector
 import Graphics.Cogh.Window.Internal
 
 import Prelude hiding (Left, Right)
@@ -52,12 +53,12 @@ castButton cButton = do
     }
 
 
-type Position = (Int, Int)
-
 data Motion = Motion
   { position :: Position
-  , motion :: (Int, Int)
+  , motion :: Pixel
   } deriving (Eq, Show, Read)
+
+type Position = Pixel
 
 getMotions :: WindowPtr -> IO [Motion]
 getMotions = getEvents cGetMotions castMotion
@@ -69,12 +70,12 @@ castMotion cMotion = do
   cMotionX <- motionMotionX cMotion
   cMotionY <- motionMotionY cMotion
   return Motion
-    { position = (fromIntegral positionX, fromIntegral positionY)
-    , motion = (fromIntegral cMotionX, fromIntegral cMotionY)
+    { position = Point (fromIntegral positionX) (fromIntegral positionY)
+    , motion = Point (fromIntegral cMotionX) (fromIntegral cMotionY)
     }
 
 
-type Scroll = (Int, Int)
+type Scroll = Pixel
 
 getScrolls :: WindowPtr -> IO [Scroll]
 getScrolls = getEvents cGetScrolls castScroll
@@ -83,7 +84,7 @@ castScroll :: Ptr () -> IO Scroll
 castScroll cScroll = do
   x <- scrollX cScroll
   y <- scrollY cScroll
-  return (fromIntegral x, fromIntegral y)
+  return $ Point (fromIntegral x) (fromIntegral y)
 
 
 foreign import ccall unsafe "getMouseButtons" cGetButtons

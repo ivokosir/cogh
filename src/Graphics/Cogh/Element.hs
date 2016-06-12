@@ -12,14 +12,14 @@ module Graphics.Cogh.Element
 import Graphics.Cogh.Color as Export hiding (withColorPtr)
 import Graphics.Cogh.Render as Export
   ( Texture
-  , textureWidth
-  , textureHeight
+  , textureSize
   )
 
 import Graphics.Cogh.Render
 import Graphics.Cogh.Window
 import Graphics.Cogh.Event
 import Graphics.Cogh.Matrix hiding (withMatrixPtr)
+import Graphics.Cogh.Vector
 
 data Element = Element
   { position :: Position
@@ -32,10 +32,10 @@ data Element = Element
 
 emptyElement :: Element
 emptyElement = Element
-  { position = (0, 0)
-  , size = (0, 0)
-  , scale = (1, 1)
-  , origin = (0, 0)
+  { position = Point 0 0
+  , size = Point 0 0
+  , scale = Point 1 1
+  , origin = Point 0 0
   , angle = 0
   , render = \ _ _ _ -> return ()
   }
@@ -73,7 +73,7 @@ rectangle rectSize color = emptyElement { size = rectSize, render = rectRender }
       , rotation (angle e)
       , scaling (scale e)
       , scaling (size e)
-      , translation ((\ (x, y) -> (-x, -y)) (origin e))
+      , translation (negate $ origin e)
       ]
 
 image :: Size -> Texture -> Element
@@ -87,7 +87,7 @@ image rectSize texture = emptyElement { size = rectSize, render = textureRender 
       , rotation (angle e)
       , scaling (scale e)
       , scaling (size e)
-      , translation ((\ (x, y) -> (-x, -y)) (origin e))
+      , translation (negate $ origin e)
       ]
 
 -- modelMatrix :: Element -> Matrix
@@ -96,7 +96,7 @@ image rectSize texture = emptyElement { size = rectSize, render = textureRender 
 --   , rotation (angle e)
 --   , scaling (scale e)
 --   , scaling (size e)
---   , translation ((\ (x, y) -> (-x, -y)) (origin e))
+--   , translation (negate $ origin e)
 --   ]
 
 group :: [Element] -> Element
@@ -114,9 +114,7 @@ group es = emptyElement { render = renderGroup }
 
 renderRoot :: Window -> Element -> IO ()
 renderRoot window e = do
-  matrix <- projection . pairToFloat . windowSize <$> getWindowState window
+  matrix <- projection . fmap fromIntegral . windowSize <$> getWindowState window
   clear window
   render e e matrix window
   swapBuffers window
- where
-  pairToFloat (a, b) = (fromIntegral a, fromIntegral b)

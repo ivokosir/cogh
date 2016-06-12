@@ -12,6 +12,7 @@ module Graphics.Cogh.Event
 import Data.IORef
 import Graphics.Cogh.Button
 import Graphics.Cogh.Event.Internal
+import Graphics.Cogh.Vector
 import Graphics.Cogh.Window.Internal
 import qualified Graphics.Cogh.Key.Internal as Key
 import qualified Graphics.Cogh.Mouse.Internal as Mouse
@@ -31,7 +32,7 @@ data WindowState = WindowState
   , mouseButtons :: [Mouse.Button]
   , pressedMouseButtons :: [Mouse.Button]
   , mouseMotions :: [Mouse.Motion]
-  , mousePosition :: (Int, Int)
+  , mousePosition :: Mouse.Position
   , mouseScrolls :: [Mouse.Scroll]
   , joysticks :: [Joystick.Joystick]
   , windowSizes :: [WindowSize]
@@ -41,7 +42,7 @@ data WindowState = WindowState
 
 initialWindowState :: WindowState
 initialWindowState = WindowState
-  [] [] [] [] [] (0, 0) [] [] [] (0, 0) False
+  [] [] [] [] [] (Point 0 0) [] [] [] (Point 0 0) False
 
 pollEvents :: Window -> IO WindowState
 pollEvents window@(Window _ stateRef) = withCWindow window $ \ w -> do
@@ -79,7 +80,7 @@ pollEvents window@(Window _ stateRef) = withCWindow window $ \ w -> do
   writeIORef stateRef newState
   return newState
 
-type WindowSize = (Int, Int)
+type WindowSize = Pixel
 
 getWindowSizes :: WindowPtr -> IO [WindowSize]
 getWindowSizes = getEvents cGetWindowSizes castWindowSize
@@ -88,7 +89,7 @@ castWindowSize :: Ptr () -> IO WindowSize
 castWindowSize cWindowSize = do
   w <- windowSizeW cWindowSize
   h <- windowSizeH cWindowSize
-  return (fromIntegral w, fromIntegral h)
+  return $ Point (fromIntegral w) (fromIntegral h)
 
 
 getQuit :: WindowPtr -> IO Bool

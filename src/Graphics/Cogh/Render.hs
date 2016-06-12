@@ -5,18 +5,18 @@ module Graphics.Cogh.Render
   , drawRect
   , Texture
   , drawTexture
-  , textureWidth
-  , textureHeight
+  , textureSize
   ) where
 
 import Foreign.C
 import Foreign.Ptr
 import Foreign.ForeignPtr
+import Graphics.Cogh.Color
 import Graphics.Cogh.Event
 import Graphics.Cogh.Matrix
-import Graphics.Cogh.Color
+import Graphics.Cogh.Vector
 
-data Texture = Texture (ForeignPtr ()) Int Int
+data Texture = Texture (ForeignPtr ()) Pixel
 type TexturePtr = Ptr ()
 
 newTexture :: Ptr () -> IO Texture
@@ -24,16 +24,13 @@ newTexture p = do
   foreignPtr <- newForeignPtr deleteTextureFunPtr p
   width <- cTextureWidth p
   height <- cTextureHeight p
-  return $ Texture foreignPtr (fromIntegral width) (fromIntegral height)
+  return $ Texture foreignPtr $ Point (fromIntegral width) (fromIntegral height)
 
-textureWidth :: Texture -> Int
-textureWidth (Texture _ w _) = w
-
-textureHeight :: Texture -> Int
-textureHeight (Texture _ _ h) = h
+textureSize :: Texture -> Pixel
+textureSize (Texture _ p) = p
 
 withCTexture :: Texture -> (Ptr () -> IO a) -> IO a
-withCTexture (Texture foreignPtr _ _) = withForeignPtr foreignPtr
+withCTexture (Texture foreignPtr _) = withForeignPtr foreignPtr
 
 drawTexture :: Window -> Matrix -> Texture -> IO ()
 drawTexture w matrix texture =
