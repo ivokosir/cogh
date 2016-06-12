@@ -2,6 +2,9 @@ module Graphics.Cogh.Event
   ( WindowState (..)
   , Window (..)
   , WindowPtr (..)
+  , toWorld
+  , fromWorld
+  , deltaTime
   , withCWindow
   , getWindowState
   , initialWindowState
@@ -10,6 +13,7 @@ module Graphics.Cogh.Event
   ) where
 
 import Data.IORef
+import Data.Word
 import Graphics.Cogh.Button
 import Graphics.Cogh.Event.Internal
 import Graphics.Cogh.Vector
@@ -19,6 +23,20 @@ import qualified Graphics.Cogh.Mouse.Internal as Mouse
 import qualified Graphics.Cogh.Joystick.Internal as Joystick
 
 data Window = Window WindowPtr (IORef WindowState)
+
+toWorld :: WindowState -> Pixel -> Vector
+toWorld ws point = Point (x*px/wx) (y*py/wy)
+ where
+  Point{x, y} = fromIntegral <$> point
+  Point{x=wx, y=wy} = fromIntegral <$> windowSize ws
+  Point{x=px, y=py} = fromIntegral <$> windowSize ws
+
+fromWorld :: WindowState -> Vector -> Pixel
+fromWorld ws vector = round <$> Point (x*wx/px) (y*wy/py)
+ where
+  Point{x, y} = vector
+  Point{x=wx, y=wy} = fromIntegral <$> windowSize ws
+  Point{x=px, y=py} = fromIntegral <$> windowSize ws
 
 withCWindow :: Window -> (WindowPtr -> IO a) -> IO a
 withCWindow (Window cWindow _) io = io cWindow
@@ -38,11 +56,24 @@ data WindowState = WindowState
   , windowSizes :: [WindowSize]
   , windowSize :: WindowSize
   , quit :: Bool
+  , previousTime :: Word32
+  , time :: Word32
   } deriving (Eq, Show, Read)
 
-initialWindowState :: WindowState
-initialWindowState = WindowState
-  [] [] [] [] [] (Point 0 0) [] [] [] (Point 0 0) False
+deltaTime :: WindowState -> Float
+deltaTime ws = fromIntegral deltaMilisPositive / 1000
+ where
+  deltaMilis = time ws - previousTime ws
+  deltaMilisPositive | deltaMilis > 0 = deltaMilis
+                     | otherwise = 0
+
+initialWindowState :: IO WindowState
+initialWindowState = do
+  newTime <- cTime
+  return $ WindowState
+    [] [] [] [] [] (Point 0 0)
+    [] [] [] (Point 0 0) False
+    newTime newTime
 
 pollEvents :: Window -> IO WindowState
 pollEvents window@(Window _ stateRef) = withCWindow window $ \ w -> do
@@ -56,14 +87,19 @@ pollEvents window@(Window _ stateRef) = withCWindow window $ \ w -> do
   newJoysticks    <- Joystick.getJoysticks w (joysticks oldState)
   newWindowSizes  <- getWindowSizes w
   newQuit         <- getQuit w
+  newTime         <- cTime
 
   let
     newPressedKeys =
       getPressedButtons newKeys (pressedKeys oldState)
     newPressedMouseButtons =
       getPressedButtons newMouseButtons (pressedMouseButtons oldState)
-    newMousePosition = last $ mousePosition oldState : fmap Mouse.position newMouseMotions
+
+    newMousePosition =
+      last $ mousePosition oldState : fmap Mouse.position newMouseMotions
     lastWindowSize = last $ windowSize oldState : newWindowSizes
+    oldTime = time oldState
+
     newState = WindowState
       newKeys
       newPressedKeys
@@ -76,6 +112,8 @@ pollEvents window@(Window _ stateRef) = withCWindow window $ \ w -> do
       newWindowSizes
       lastWindowSize
       newQuit
+      oldTime
+      newTime
 
   writeIORef stateRef newState
   return newState
@@ -112,3 +150,7 @@ foreign import ccall unsafe "sizeH" windowSizeH
 
 foreign import ccall unsafe "getQuit" cGetQuit
   :: WindowPtr -> IO CInt
+
+
+foreign import ccall unsafe "time" cTime
+  :: IO Word32

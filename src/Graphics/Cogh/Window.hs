@@ -3,11 +3,12 @@ module Graphics.Cogh.Window
   , WindowState (..)
   , newWindow
   , deleteWindow
-  , time
+  , fromWorld
+  , toWorld
+  , deltaTime
   ) where
 
 import Data.IORef
-import Data.Word
 import Foreign.C
 import Foreign.Ptr
 import Graphics.Cogh.Event
@@ -17,7 +18,7 @@ newWindow title = do
   windowPtr <- withCString title cNewWindow
   if (\ (WindowPtr p) -> p) windowPtr /= nullPtr
     then do
-      stateRef <- newIORef initialWindowState
+      stateRef <- newIORef =<< initialWindowState
       return . Just $ Window windowPtr stateRef
     else return Nothing
 
@@ -26,6 +27,3 @@ foreign import ccall unsafe "newWindow" cNewWindow
 
 foreign import ccall unsafe "deleteWindow" deleteWindow
   :: WindowPtr -> IO ()
-
-foreign import ccall unsafe "time" time
-  :: IO Word32
