@@ -31,8 +31,8 @@ setVectorLength newLength p = vectorScale lengthRatio p
   oldLength = vectorLength p
   lengthRatio = newLength / oldLength
 
-normalize :: Floating a => Point a -> Point a
-normalize = setVectorLength 1
+vectorNormalize :: Floating a => Point a -> Point a
+vectorNormalize = setVectorLength 1
 
 type Pixel = Point Int
 
