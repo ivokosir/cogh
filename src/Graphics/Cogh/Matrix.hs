@@ -13,9 +13,8 @@ module Graphics.Cogh.Matrix
 
 import Foreign.Marshal.Array
 import Foreign.Ptr
-import Graphics.Cogh.Vector (Point (..), Vector)
+import Graphics.Cogh.Vector
 
-type Angle = Float
 type Position = Vector
 type Size = Vector
 type Scale = Vector

@@ -11,5 +11,5 @@ getPressedButtons :: Button a => [a] -> [a] -> [a]
 getPressedButtons newButtons oldPressedButtons =
   newPressedButtons ++ filter isInNewButtons oldPressedButtons
  where
-  isInNewButtons button = not $ any (isSame button) newPressedButtons
+  isInNewButtons button = not $ any (isSame button) newButtons
   newPressedButtons = filter isPressed newButtons
