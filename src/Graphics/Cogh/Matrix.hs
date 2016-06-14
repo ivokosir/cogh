@@ -46,8 +46,8 @@ scaling Point{x, y} = Matrix
 
 rotation :: Angle -> Matrix
 rotation angle = Matrix
-  c   s 0
- (-s) c 0
+ c (-s) 0
+ s   c  0
  where
   s = sin angle
   c = cos angle
@@ -59,8 +59,8 @@ projection Point{x=w, y=h} = Matrix
 
 model :: Position -> Scale -> Angle -> Matrix
 model Point{x, y} Point{x=w, y=h} angle = Matrix
-  (c*w) (s*h) x
-  (-s*w) (c*h) y
+  (c*w) (-s*h) x
+  (s*w)  (c*h) y
  where
   s = sin angle
   c = cos angle

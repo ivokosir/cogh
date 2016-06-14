@@ -26,7 +26,7 @@ vectorScale :: Float -> Vector -> Vector
 vectorScale s Point{x, y} = Point (s * x) (s * y)
 
 vectorAngle :: Vector -> Angle
-vectorAngle Point{x, y} = atan2 x y
+vectorAngle Point{x, y} = atan2 y x
 
 setVectorAngle :: Angle -> Vector -> Vector
 setVectorAngle angle v = vectorRotate (angle-oldAngle) v
@@ -36,10 +36,10 @@ setVectorAngle angle v = vectorRotate (angle-oldAngle) v
 vectorRotate :: Angle -> Vector -> Vector
 vectorRotate angle Point{x, y} = Point { x = x', y = y' }
  where
-  cosA = cos angle
-  sinA = sin angle
-  x' =  x*cosA + y*sinA
-  y' = -x*sinA + y*cosA
+  c = cos angle
+  s = sin angle
+  x' = x*c - y*s
+  y' = x*s + y*c
 
 vectorLength :: Vector -> Float
 vectorLength Point{x, y} = sqrt (x**2 + y**2)
