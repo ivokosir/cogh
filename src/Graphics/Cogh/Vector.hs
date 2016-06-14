@@ -38,8 +38,8 @@ vectorRotate angle Point{x, y} = Point { x = x', y = y' }
  where
   cosA = cos angle
   sinA = sin angle
-  x' = x*cosA - y*sinA
-  y' = x*sinA + y*cosA
+  x' =  x*cosA + y*sinA
+  y' = -x*sinA + y*cosA
 
 vectorLength :: Vector -> Float
 vectorLength Point{x, y} = sqrt (x**2 + y**2)
