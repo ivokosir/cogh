@@ -18,7 +18,6 @@ data Key = Key
 instance Button Key where
   isPressed (Key _ (Press _)) = True
   isPressed _ = False
-  isSame a b = code a == code b
 
 newtype Code = Code CUInt deriving (Eq)
 

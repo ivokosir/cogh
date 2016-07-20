@@ -5,11 +5,11 @@ module Graphics.Cogh.Button
 
 class Button a where
   isPressed :: a -> Bool
-  isSame :: a -> a -> Bool
 
-getPressedButtons :: Button a => [a] -> [a] -> [a]
-getPressedButtons newButtons oldPressedButtons =
+getPressedButtons
+  :: (Button a, Eq code) => (a -> code) -> [a] -> [code] -> [code]
+getPressedButtons getCode newButtons oldPressedButtons =
   newPressedButtons ++ filter isInNewButtons oldPressedButtons
  where
-  isInNewButtons button = not $ any (isSame button) newButtons
-  newPressedButtons = filter isPressed newButtons
+  isInNewButtons code = code `notElem` map getCode newButtons
+  newPressedButtons = getCode <$> filter isPressed newButtons

@@ -46,9 +46,9 @@ getWindowState (Window _ stateRef) = readIORef stateRef
 
 data WindowState = WindowState
   { keys :: [Key.Key]
-  , pressedKeys :: [Key.Key]
+  , pressedKeys :: [Key.Code]
   , mouseButtons :: [Mouse.Button]
-  , pressedMouseButtons :: [Mouse.Button]
+  , pressedMouseButtons :: [Mouse.Code]
   , mouseMotions :: [Mouse.Motion]
   , mousePosition :: Mouse.Position
   , mouseScrolls :: [Mouse.Scroll]
@@ -91,9 +91,9 @@ pollEvents window@(Window _ stateRef) = withCWindow window $ \ w -> do
 
   let
     newPressedKeys =
-      getPressedButtons newKeys (pressedKeys oldState)
+      getPressedButtons Key.code newKeys (pressedKeys oldState)
     newPressedMouseButtons =
-      getPressedButtons newMouseButtons (pressedMouseButtons oldState)
+      getPressedButtons Mouse.code newMouseButtons (pressedMouseButtons oldState)
 
     newMousePosition =
       last $ mousePosition oldState : fmap Mouse.position newMouseMotions

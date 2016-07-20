@@ -25,7 +25,6 @@ data Button = Button
 instance Button.Button Button where
   isPressed (Button _ Press) = True
   isPressed _ = False
-  isSame a b = code a == code b
 
 data Code = Left | Middle | Right | Other Int deriving (Eq, Read, Show)
 

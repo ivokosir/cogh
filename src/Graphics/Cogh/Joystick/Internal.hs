@@ -48,7 +48,7 @@ addButtonsAndAxii newButtonsWithId newAxiiWithId joystick = joystick
   thisButtonsWithIds = filter isThis newButtonsWithId
   thisButtons = fmap snd thisButtonsWithIds
   oldPressedButtons = pressedButtons joystick
-  newPressedButtons = Button.getPressedButtons thisButtons oldPressedButtons
+  newPressedButtons = Button.getPressedButtons code thisButtons oldPressedButtons
   thisAxiiWithIds = filter isThis newAxiiWithId
   thisAxii = fmap snd thisAxiiWithIds
   oldAxii = axii joystick
@@ -62,7 +62,7 @@ addButtonsAndAxii newButtonsWithId newAxiiWithId joystick = joystick
 data Joystick = Joystick
   { id :: Id
   , buttons :: [Button]
-  , pressedButtons :: [Button]
+  , pressedButtons :: [Code]
   , axii :: [Axis]
   } deriving (Eq, Show, Read)
 
@@ -91,7 +91,6 @@ data Button = Button
 instance Button.Button Button where
   isPressed (Button _ Press) = True
   isPressed _ = False
-  isSame a b = code a == code b
 
 type Code = Int
 
