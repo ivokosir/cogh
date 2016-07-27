@@ -15,6 +15,7 @@ import Graphics.Cogh.Render as Export
   , textureSize
   )
 
+import Data.List (sortBy)
 import Graphics.Cogh.Render
 import Graphics.Cogh.Window
 import Graphics.Cogh.Event
@@ -27,7 +28,9 @@ data Element = Element
   , scale :: Scale
   , origin :: Origin
   , angle :: Angle
-  , render :: Element -> Matrix -> Window -> IO ()
+  , depth :: Float
+  , normalize :: Element -> Matrix -> Float -> [(Element, Matrix, Float)]
+  , render :: Matrix -> Window -> IO ()
   }
 
 emptyElement :: Element
@@ -37,86 +40,72 @@ emptyElement = Element
   , scale = Point 1 1
   , origin = Point 0 0
   , angle = 0
-  , render = \ _ _ _ -> return ()
+  , depth = 0
+  , normalize = defaultNormalize
+  , render = \ _ _ -> return ()
   }
 
--- mouseArea :: IO Element
--- mouseArea = do
---   clickRef <- newIORef Nothing
---   resultRef <- newIORef False
---   return emptyElement { render = mouseUpdate clickRef resultRef }
---  where
---   mouseUpdate clickRef resultRef e view _ = do
---     click <- readIORef clickRef
---     case click of
---       Just point -> writeIORef resultRef (isInMatrix point matrix)
---       Nothing -> return ()
---    where
---     isInMatrix _ _ = False
---     matrix = mconcat
---       [ view
---       , translation (position e)
---       , rotation (angle e)
---       , scaling (scale e)
---       , scaling (size e)
---       , translation ((\ (x, y) -> (-x, -y)) (origin e))
---       ]
+defaultNormalize :: Element -> Matrix -> Float -> [(Element, Matrix, Float)]
+defaultNormalize e parentMatrix parentDepth =
+  [(e, defaultMatrix e parentMatrix, parentDepth + depth e)]
+
+defaultMatrix :: Element -> Matrix -> Matrix
+defaultMatrix e view = mconcat
+  [ view
+  , translation (position e)
+  , rotation (angle e)
+  , scaling (scale e)
+  , scaling (size e)
+  , translation (negate $ origin e)
+  ]
 
 rectangle :: Size -> Color -> Element
-rectangle rectSize color = emptyElement { size = rectSize, render = rectRender }
+rectangle rectSize color = emptyElement
+  { size = rectSize
+  , render = rectRender }
  where
-  rectRender e view window = drawRect window matrix color
-   where
-    matrix = mconcat
-      [ view
-      , translation (position e)
-      , rotation (angle e)
-      , scaling (scale e)
-      , scaling (size e)
-      , translation (negate $ origin e)
-      ]
+  rectRender matrix window = drawRect window matrix color
 
 image :: Texture -> Element
 image texture = emptyElement
   { size = fromIntegral <$> textureSize texture
   , render = textureRender }
  where
-  textureRender e view window = drawTexture window matrix texture
-   where
-    matrix = mconcat
-      [ view
-      , translation (position e)
-      , rotation (angle e)
-      , scaling (scale e)
-      , scaling (size e)
-      , translation (negate $ origin e)
-      ]
-
--- modelMatrix :: Element -> Matrix
--- modelMatrix e = mconcat
---   [ translation (position e)
---   , rotation (angle e)
---   , scaling (scale e)
---   , scaling (size e)
---   , translation (negate $ origin e)
---   ]
+  textureRender matrix window = drawTexture window matrix texture
 
 group :: [Element] -> Element
-group es = emptyElement { render = renderGroup }
+group es = emptyElement { normalize = groupNormalize es }
+
+groupMatrix :: Element -> Matrix -> Matrix
+groupMatrix e view = mconcat
+  [ view
+  , translation (position e)
+  , rotation (angle e)
+  , scaling (scale e)
+  ]
+
+groupNormalize
+  :: [Element] -> Element -> Matrix -> Float
+  -> [(Element, Matrix, Float)]
+groupNormalize es e parentMatrix parentDepth =
+  defaultNormalize e parentMatrix parentDepth ++
+    concatMap normalizeChild es
  where
-  renderGroup e view window = sequence_ (fmap renderChild es)
-   where
-    renderChild child = render child child matrix window
-    matrix = mconcat
-      [ view
-      , translation (position e)
-      , rotation (angle e)
-      , scaling (scale e)
-      ]
+  newMatrix = groupMatrix e parentMatrix
+  newDepth = parentDepth + depth e
+  normalizeChild child = normalize child child newMatrix newDepth
 
 renderRoot :: Window -> Element -> IO ()
 renderRoot window e = do
-  matrix <- projection . fmap fromIntegral . windowSize <$> getWindowState window
   clear window
-  render e e matrix window
+  oldState <- getWindowState window
+  let
+    matrix = projection $ fromIntegral <$> windowSize oldState
+    unsortedEs = normalize e e matrix 0
+    sortedEs = sortBy sortEs unsortedEs
+    sortEs (_, _, aDepth) (_, _, bDepth) = compare aDepth bDepth
+    elementRenders = map getElementRender sortedEs
+    getElementRender (element, elementMatrix, _) =
+      render element elementMatrix window
+  sequence_ elementRenders
   swapBuffers window
