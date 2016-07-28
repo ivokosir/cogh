@@ -20,11 +20,12 @@ data Element = Element
   , render :: WindowPtr -> Matrix -> IO ()
   }
 
-renderRoot :: WindowPtr -> Pixel -> Element -> IO ()
+renderRoot :: WindowPtr -> Pixel -> Element -> IO [(Element, Matrix, Float)]
 renderRoot window screenSize e = do
   clear window
   sequence_ elementRenders
   swapBuffers window
+  return sortedEs
  where
   matrix = projection $ fromIntegral <$> screenSize
   unsortedEs = normalize e e matrix 0

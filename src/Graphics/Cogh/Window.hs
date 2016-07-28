@@ -46,7 +46,8 @@ updateWindow window = do
 
 refreshWindow :: Window -> Element -> IO WindowState
 refreshWindow window element = do
-  oldState <- getWindowState window
-  withCWindow window $ \ cWindow ->
-      renderRoot cWindow (windowSize oldState) element
+  state <- getWindowState window
+  newElements <- withCWindow window $ \ cWindow ->
+      renderRoot cWindow (windowSize state) element
+  setWindowState window state { elements = newElements }
   updateWindow window

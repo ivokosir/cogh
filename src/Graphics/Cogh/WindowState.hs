@@ -8,6 +8,8 @@ module Graphics.Cogh.WindowState
   ) where
 
 import Data.Word
+import Graphics.Cogh.Element
+import Graphics.Cogh.Matrix
 import Graphics.Cogh.Vector
 import qualified Graphics.Cogh.Key.Internal as Key
 import qualified Graphics.Cogh.Mouse.Internal as Mouse
@@ -27,7 +29,8 @@ data WindowState = WindowState
   , quit :: Bool
   , previousTime :: Word32
   , time :: Word32
-  } deriving (Eq, Show, Read)
+  , elements :: [(Element, Matrix, Float)]
+  }
 
 toWorld :: WindowState -> Pixel -> Vector
 toWorld ws point = Point (x*px/wx) (y*py/wy)
@@ -65,6 +68,7 @@ initialWindowState = do
     [] [] [] [] [] (Point 0 0)
     [] [] [] (Point 0 0) False
     initialTime initialTime
+    []
 
 foreign import ccall unsafe "time" cTime
   :: IO Word32
