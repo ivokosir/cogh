@@ -50,15 +50,21 @@ deltaTime ws = fromIntegral deltaMilisPositive / 1000
   deltaMilisPositive | deltaMilis > 0 = deltaMilis
                      | otherwise = 0
 
-updateTime :: WindowState -> Word32 -> WindowState
-updateTime ws newTime = ws
-  { previousTime = time ws
-  , time = newTime
-  }
+updateTime :: WindowState -> IO WindowState
+updateTime ws = do
+  newTime <- cTime
+  return $ ws
+    { previousTime = time ws
+    , time = newTime
+    }
 
-initialWindowState :: Word32 -> WindowState
-initialWindowState initialTime =
-  WindowState
+initialWindowState :: IO WindowState
+initialWindowState = do
+  initialTime <- cTime
+  return $ WindowState
     [] [] [] [] [] (Point 0 0)
     [] [] [] (Point 0 0) False
     initialTime initialTime
+
+foreign import ccall unsafe "time" cTime
+  :: IO Word32

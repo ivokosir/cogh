@@ -12,7 +12,6 @@ import Graphics.Cogh.WindowState as Export hiding
   )
 
 import Data.IORef
-import Data.Word
 import Foreign.C
 import Foreign.Ptr
 import Graphics.Cogh.Element
@@ -25,8 +24,7 @@ newWindow title = do
   windowPtr <- withCString title cNewWindow
   if (\ (WindowPtr p) -> p) windowPtr /= nullPtr
     then do
-      initialTime <- cTime
-      stateRef <- newIORef $ initialWindowState initialTime
+      stateRef <- newIORef =<< initialWindowState
       return . Just $ Window windowPtr stateRef
     else return Nothing
 
@@ -36,18 +34,18 @@ foreign import ccall unsafe "newWindow" cNewWindow
 foreign import ccall unsafe "deleteWindow" deleteWindow
   :: WindowPtr -> IO ()
 
-refreshWindow :: Window -> Maybe Element -> IO WindowState
-refreshWindow window mElement = do
+updateWindow :: Window -> IO WindowState
+updateWindow window = do
   oldState <- getWindowState window
-  stateWithEvents <- withCWindow window $ \ cWindow -> do
-    case mElement of
-      (Just element) -> renderRoot cWindow (windowSize oldState) element
-      _ -> return ()
+  stateWithEvents <- withCWindow window $ \ cWindow ->
     pollEvents cWindow oldState
-  newTime <- cTime
-  let newState = updateTime stateWithEvents newTime
+  newState <- updateTime stateWithEvents
   setWindowState window newState
   return newState
 
-foreign import ccall unsafe "time" cTime
-  :: IO Word32
+refreshWindow :: Window -> Element -> IO WindowState
+refreshWindow window element = do
+  oldState <- getWindowState window
+  withCWindow window $ \ cWindow ->
+      renderRoot cWindow (windowSize oldState) element
+  updateWindow window
