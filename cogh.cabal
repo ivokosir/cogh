@@ -43,6 +43,7 @@ library
     Graphics.Cogh.Matrix,
     Graphics.Cogh.Render,
     Graphics.Cogh.WindowState
+    Graphics.Cogh.Element.Internal,
     Graphics.Cogh.Event.Internal,
     Graphics.Cogh.Key.Internal,
     Graphics.Cogh.Mouse.Internal,

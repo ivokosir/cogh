@@ -15,7 +15,7 @@ import Graphics.Cogh.WindowState as Export hiding
 import Data.IORef
 import Foreign.C
 import Foreign.Ptr
-import Graphics.Cogh.Element
+import Graphics.Cogh.Element.Internal
 import Graphics.Cogh.Event
 import Graphics.Cogh.WindowState
 import Graphics.Cogh.Window.Internal
