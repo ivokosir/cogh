@@ -10,7 +10,7 @@ import Foreign.Ptr
 import Foreign.ForeignPtr
 import Graphics.Cogh.Color
 import Graphics.Cogh.Render
-import Graphics.Cogh.Event
+import Graphics.Cogh.Window.Internal
 
 data Font = Font (ForeignPtr ()) Int
 type FontPtr = Ptr ()

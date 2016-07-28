@@ -5,7 +5,7 @@ module Graphics.Cogh.Image
 import Foreign.C
 import Foreign.Ptr
 import Graphics.Cogh.Render
-import Graphics.Cogh.Event
+import Graphics.Cogh.Window.Internal
 
 type ImagePtr = Ptr ()
 

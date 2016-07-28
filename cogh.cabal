@@ -42,10 +42,12 @@ library
     Graphics.Cogh.Color,
     Graphics.Cogh.Matrix,
     Graphics.Cogh.Render,
+    Graphics.Cogh.WindowState
     Graphics.Cogh.Event.Internal,
     Graphics.Cogh.Key.Internal,
     Graphics.Cogh.Mouse.Internal,
     Graphics.Cogh.Joystick.Internal,
+    Graphics.Cogh.Window.CWindow
     Graphics.Cogh.Window.Internal
 
   c-sources:

@@ -8,7 +8,7 @@ module Graphics.Cogh.Key.Internal
 import System.IO.Unsafe
 import Graphics.Cogh.Button
 import Graphics.Cogh.Event.Internal
-import Graphics.Cogh.Window.Internal
+import Graphics.Cogh.Window.CWindow
 
 data Key = Key
   { code :: Code

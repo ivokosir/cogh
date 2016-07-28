@@ -16,7 +16,7 @@ import Prelude hiding (id)
 import Data.List
 import qualified Graphics.Cogh.Button as Button
 import Graphics.Cogh.Event.Internal
-import Graphics.Cogh.Window.Internal
+import Graphics.Cogh.Window.CWindow
 
 getJoysticks :: WindowPtr -> [Joystick] -> IO [Joystick]
 getJoysticks w oldJoysticks = do

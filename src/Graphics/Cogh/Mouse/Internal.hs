@@ -13,7 +13,7 @@ module Graphics.Cogh.Mouse.Internal
 import qualified Graphics.Cogh.Button as Button
 import Graphics.Cogh.Event.Internal
 import Graphics.Cogh.Vector
-import Graphics.Cogh.Window.Internal
+import Graphics.Cogh.Window.CWindow
 
 import Prelude hiding (Left, Right)
 

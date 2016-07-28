@@ -1,7 +1,22 @@
 module Graphics.Cogh.Window.Internal
-  ( WindowPtr (..)
+  ( Window (..)
+  , WindowPtr (..)
+  , withCWindow
+  , getWindowState
+  , setWindowState
   ) where
 
-import Foreign.Ptr
+import Data.IORef
+import Graphics.Cogh.Window.CWindow
+import Graphics.Cogh.WindowState
 
-newtype WindowPtr = WindowPtr (Ptr ())
+data Window = Window WindowPtr (IORef WindowState)
+
+withCWindow :: Window -> (WindowPtr -> IO a) -> IO a
+withCWindow (Window cWindow _) io = io cWindow
+
+getWindowState :: Window -> IO WindowState
+getWindowState (Window _ stateRef) = readIORef stateRef
+
+setWindowState :: Window -> WindowState -> IO ()
+setWindowState (Window _ stateRef) = writeIORef stateRef

@@ -8,7 +8,7 @@ module Graphics.Cogh.Event.Internal
 import Foreign.C
 import Foreign.Ptr
 import Foreign.Marshal.Array
-import Graphics.Cogh.Window.Internal
+import Graphics.Cogh.Window.CWindow
 
 getEvents
   :: (WindowPtr -> IO (Ptr (Ptr ())))

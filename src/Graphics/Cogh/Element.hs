@@ -17,10 +17,9 @@ import Graphics.Cogh.Render as Export
 
 import Data.List (sortBy)
 import Graphics.Cogh.Render
-import Graphics.Cogh.Window
-import Graphics.Cogh.Event
 import Graphics.Cogh.Matrix hiding (withMatrixPtr)
 import Graphics.Cogh.Vector
+import Graphics.Cogh.Window.CWindow
 
 data Element = Element
   { position :: Position
@@ -30,7 +29,7 @@ data Element = Element
   , angle :: Angle
   , depth :: Float
   , normalize :: Element -> Matrix -> Float -> [(Element, Matrix, Float)]
-  , render :: Matrix -> Window -> IO ()
+  , render :: WindowPtr -> Matrix -> IO ()
   }
 
 emptyElement :: Element
@@ -64,14 +63,14 @@ rectangle rectSize color = emptyElement
   { size = rectSize
   , render = rectRender }
  where
-  rectRender matrix window = drawRect window matrix color
+  rectRender window matrix = drawRect window matrix color
 
 image :: Texture -> Element
 image texture = emptyElement
   { size = fromIntegral <$> textureSize texture
   , render = textureRender }
  where
-  textureRender matrix window = drawTexture window matrix texture
+  textureRender window matrix = drawTexture window matrix texture
 
 group :: [Element] -> Element
 group es = emptyElement { normalize = groupNormalize es }
@@ -95,17 +94,16 @@ groupNormalize es e parentMatrix parentDepth =
   newDepth = parentDepth + depth e
   normalizeChild child = normalize child child newMatrix newDepth
 
-renderRoot :: Window -> Element -> IO ()
-renderRoot window e = do
+renderRoot :: WindowPtr -> Pixel -> Element -> IO ()
+renderRoot window screenSize e = do
   clear window
-  oldState <- getWindowState window
-  let
-    matrix = projection $ fromIntegral <$> windowSize oldState
-    unsortedEs = normalize e e matrix 0
-    sortedEs = sortBy sortEs unsortedEs
-    sortEs (_, _, aDepth) (_, _, bDepth) = compare aDepth bDepth
-    elementRenders = map getElementRender sortedEs
-    getElementRender (element, elementMatrix, _) =
-      render element elementMatrix window
   sequence_ elementRenders
   swapBuffers window
+ where
+  matrix = projection $ fromIntegral <$> screenSize
+  unsortedEs = normalize e e matrix 0
+  sortedEs = sortBy sortEs unsortedEs
+  sortEs (_, _, aDepth) (_, _, bDepth) = compare aDepth bDepth
+  elementRenders = map getElementRender sortedEs
+  getElementRender (element, elementMatrix, _) =
+    render element window elementMatrix
