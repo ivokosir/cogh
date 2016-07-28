@@ -3,6 +3,7 @@ module Graphics.Cogh.Window
   , Window
   , newWindow
   , deleteWindow
+  , updateWindow
   , refreshWindow
   ) where
 
