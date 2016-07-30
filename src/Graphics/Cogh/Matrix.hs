@@ -8,6 +8,8 @@ module Graphics.Cogh.Matrix
   , projection
   , model
   , dot
+  , inverse
+  , dotVector
   , withMatrixPtr
   ) where
 
@@ -77,6 +79,32 @@ dot
   ) = Matrix
     (a1*a2 + d1*b2) (a1*d2 + d1*e2) (a1*g2 + d1*h2 + g1)
     (b1*a2 + e1*b2) (b1*d2 + e1*e2) (b1*g2 + e1*h2 + h1)
+
+inverse :: Matrix -> Matrix
+inverse
+  (Matrix
+    a d g
+    b e h
+  ) = Matrix
+  a' d' g'
+  b' e' h'
+ where
+  det = a*e-b*d
+  invdet = 1/det
+  a' =  e*invdet
+  b' = -b*invdet
+  d' = -d*invdet
+  e' =  a*invdet
+  g' = (d*h-g*e)*invdet
+  h' = (g*b-a*h)*invdet
+
+dotVector :: Matrix -> Vector -> Vector
+dotVector
+  (Matrix
+    a d g
+    b e h
+  )
+  Point { x, y } = Point (a*x + d*y + g) (b*x + e*y + h)
 
 withMatrixPtr :: Matrix -> (Ptr Float -> IO a) -> IO a
 withMatrixPtr
