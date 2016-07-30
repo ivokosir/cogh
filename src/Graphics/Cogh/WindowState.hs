@@ -5,8 +5,10 @@ module Graphics.Cogh.WindowState
   , deltaTime
   , updateTime
   , initialWindowState
+  , getHoveredElement
   ) where
 
+import Data.List
 import Data.Word
 import Graphics.Cogh.Element
 import Graphics.Cogh.Matrix
@@ -29,7 +31,7 @@ data WindowState = WindowState
   , quit :: Bool
   , previousTime :: Word32
   , time :: Word32
-  , elements :: [(Element, Matrix, Float)]
+  , elements :: [(Element, Matrix, Matrix)]
   }
 
 toWorld :: WindowState -> Pixel -> Vector
@@ -72,3 +74,26 @@ initialWindowState = do
 
 foreign import ccall unsafe "time" cTime
   :: IO Word32
+
+getHoveredElement :: WindowState -> Maybe (Element, Vector)
+getHoveredElement ws = esAndRelativeMouse
+ where
+  es = elements ws
+  esWithMouse = toMouse <$> es
+  toMouse (element, view, local) =
+    ( element
+    , mouseToMatrix view
+    , mouseToMatrix local
+    )
+  mouseToMatrix matrix = dotVector (inverse matrix) mouseVector
+  mouseVector = Point (2*(x mouse/x screen) - 1) (1 - 2*(y mouse/y screen))
+  mouse = fromIntegral <$> mousePosition ws
+  screen = fromIntegral <$> windowSize ws
+  onlyInsideEs = find isInside esWithMouse
+  isInside (element, _, Point {x, y}) =
+    size element /= Point 0 0 &&
+    x >= 0 && x <= 1 &&
+    y >= 0 && y <= 1
+  esAndRelativeMouse :: Maybe (Element, Vector)
+  esAndRelativeMouse = toElementAndRelativeMouse <$> onlyInsideEs
+  toElementAndRelativeMouse (e, m, _) = (e, m)

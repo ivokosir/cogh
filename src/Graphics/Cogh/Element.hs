@@ -31,19 +31,28 @@ emptyElement = Element
   , render = \ _ _ -> return ()
   }
 
-defaultNormalize :: Element -> Matrix -> Float -> [(Element, Matrix, Float)]
+defaultNormalize
+  :: Element -> Matrix -> Float
+  -> [(Element, Matrix, Matrix, Float)]
 defaultNormalize e parentMatrix parentDepth =
-  [(e, defaultMatrix e parentMatrix, parentDepth + depth e)]
+  [(e, view, local, parentDepth + depth e)]
+ where
+  (view, local) = viewAndLocalMatrix e parentMatrix
 
-defaultMatrix :: Element -> Matrix -> Matrix
-defaultMatrix e view = mconcat
-  [ view
-  , translation (position e)
-  , rotation (angle e)
-  , scaling (scale e)
-  , scaling (size e)
-  , translation (negate $ origin e)
-  ]
+viewAndLocalMatrix :: Element -> Matrix -> (Matrix, Matrix)
+viewAndLocalMatrix e parent = (view, local)
+ where
+  view = mconcat
+    [ parent
+    , translation (position e)
+    , rotation (angle e)
+    , scaling (scale e)
+    ]
+  local = mconcat
+    [ view
+    , scaling (size e)
+    , translation (negate $ origin e)
+    ]
 
 rectangle :: Size -> Color -> Element
 rectangle rectSize color = emptyElement
@@ -62,21 +71,13 @@ image texture = emptyElement
 group :: [Element] -> Element
 group es = emptyElement { normalize = groupNormalize es }
 
-groupMatrix :: Element -> Matrix -> Matrix
-groupMatrix e view = mconcat
-  [ view
-  , translation (position e)
-  , rotation (angle e)
-  , scaling (scale e)
-  ]
-
 groupNormalize
   :: [Element] -> Element -> Matrix -> Float
-  -> [(Element, Matrix, Float)]
+  -> [(Element, Matrix, Matrix, Float)]
 groupNormalize es e parentMatrix parentDepth =
-  defaultNormalize e parentMatrix parentDepth ++
+  (e, view, local, newDepth) :
     concatMap normalizeChild es
  where
-  newMatrix = groupMatrix e parentMatrix
   newDepth = parentDepth + depth e
-  normalizeChild child = normalize child child newMatrix newDepth
+  normalizeChild child = normalize child child view newDepth
+  (view, local) = viewAndLocalMatrix e parentMatrix
