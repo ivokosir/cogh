@@ -14,17 +14,17 @@ import Graphics.Cogh.Window.CWindow
 data EmptyLabel = EmptyLabel deriving (Typeable, Eq)
 
 data Element = Element
-  { position :: Position
-  , size :: Size
-  , scale :: Scale
-  , origin :: Origin
-  , angle :: Angle
-  , depth :: Float
+  { position' :: Position
+  , size' :: Size
+  , scale' :: Scale
+  , origin' :: Origin
+  , angle' :: Angle
+  , depth' :: Float
+  , label' :: Dynamic
   , normalize
     :: Element -> Matrix -> Float
     -> [(Element, Matrix, Matrix, Float)]
   , render :: WindowPtr -> Matrix -> IO ()
-  , label' :: Dynamic
   }
 
 renderRoot :: WindowPtr -> Pixel -> Element -> IO [(Element, Matrix, Matrix)]

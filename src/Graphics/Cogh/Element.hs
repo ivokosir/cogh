@@ -1,7 +1,24 @@
 module Graphics.Cogh.Element
   ( module Export
   , Angle, Point, Position, Size, Scale, Origin
-  , Element (..)
+  , Element
+  , position
+  , setPosition
+  , move
+  , size
+  , setSize
+  , scale
+  , setScale
+  , scaleUp
+  , origin
+  , setOrigin
+  , center
+  , angle
+  , setAngle
+  , rotate
+  , depth
+  , setDepth
+  , moveDepth
   , label
   , setLabel
   , removeLabel
@@ -18,10 +35,63 @@ import Graphics.Cogh.Render as Export
   )
 
 import Data.Dynamic
+import Data.Function
 import Graphics.Cogh.Element.Internal
 import Graphics.Cogh.Render
 import Graphics.Cogh.Matrix
 import Graphics.Cogh.Vector
+import Graphics.Cogh.Window.CWindow
+
+position :: Element -> Vector
+position = position'
+
+setPosition :: Vector -> Element -> Element
+setPosition p e = e { position' = p }
+
+move :: Vector -> Element -> Element
+move diff e = e { position' = position e + diff }
+
+size :: Element -> Vector
+size = size'
+
+setSize :: Vector -> Element -> Element
+setSize p e = e { size' = p }
+
+scale :: Element -> Vector
+scale = scale'
+
+setScale :: Vector -> Element -> Element
+setScale p e = e { scale' = p }
+
+scaleUp :: Vector -> Element -> Element
+scaleUp s e = e { scale' = scale e * s }
+
+origin :: Element -> Vector
+origin = origin'
+
+setOrigin :: Vector -> Element -> Element
+setOrigin p e = e { origin' = p }
+
+center :: Element -> Element
+center e = e { origin' = Point 0.5 0.5 }
+
+angle :: Element -> Angle
+angle = angle'
+
+setAngle :: Angle -> Element -> Element
+setAngle p e = e { angle' = p }
+
+rotate :: Angle -> Element -> Element
+rotate diff e = e { angle' = angle e + diff }
+
+depth :: Element -> Float
+depth = depth'
+
+setDepth :: Float -> Element -> Element
+setDepth p e = e { depth' = p }
+
+moveDepth :: Float -> Element -> Element
+moveDepth diff e = e { depth' = depth e + diff }
 
 setLabel :: (Typeable a, Eq a) => a -> Element -> Element
 setLabel l element = element { label' = toDyn l }
@@ -37,30 +107,33 @@ label element = l
 removeLabel :: Element -> Element
 removeLabel = setLabel EmptyLabel
 
+setRender :: (WindowPtr -> Matrix -> IO ()) -> Element -> Element
+setRender newRender e = e { render = newRender }
+
 emptyElement :: Element
 emptyElement = Element
-  { position = Point 0 0
-  , size = Point 0 0
-  , scale = Point 1 1
-  , origin = Point 0 0
-  , angle = 0
-  , depth = 0
+  { position' = Point 0 0
+  , size' = Point 0 0
+  , scale' = Point 1 1
+  , origin' = Point 0 0
+  , angle' = 0
+  , depth' = 0
+  , label' = toDyn EmptyLabel
   , normalize = defaultNormalize
   , render = \ _ _ -> return ()
-  , label' = toDyn EmptyLabel
   }
 
 rectangle :: Size -> Color -> Element
 rectangle rectSize color = emptyElement
-  { size = rectSize
-  , render = rectRender }
+  & setSize rectSize
+  & setRender rectRender
  where
   rectRender window matrix = drawRect window matrix color
 
 image :: Texture -> Element
 image texture = emptyElement
-  { size = fromIntegral <$> textureSize texture
-  , render = textureRender }
+  & setSize (fromIntegral <$> textureSize texture)
+  & setRender textureRender
  where
   textureRender window matrix = drawTexture window matrix texture
 
