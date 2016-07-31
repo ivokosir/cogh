@@ -1,13 +1,17 @@
 module Graphics.Cogh.Element.Internal
-  ( Element(..)
+  ( Element (..)
+  , EmptyLabel (..)
   , renderRoot
   ) where
 
+import Data.Dynamic
 import Data.List (sortBy)
 import Graphics.Cogh.Render
 import Graphics.Cogh.Matrix
 import Graphics.Cogh.Vector
 import Graphics.Cogh.Window.CWindow
+
+data EmptyLabel = EmptyLabel deriving (Typeable, Eq)
 
 data Element = Element
   { position :: Position
@@ -16,8 +20,11 @@ data Element = Element
   , origin :: Origin
   , angle :: Angle
   , depth :: Float
-  , normalize :: Element -> Matrix -> Float -> [(Element, Matrix, Matrix, Float)]
+  , normalize
+    :: Element -> Matrix -> Float
+    -> [(Element, Matrix, Matrix, Float)]
   , render :: WindowPtr -> Matrix -> IO ()
+  , label' :: Dynamic
   }
 
 renderRoot :: WindowPtr -> Pixel -> Element -> IO [(Element, Matrix, Matrix)]
@@ -34,5 +41,6 @@ renderRoot window screenSize e = do
   elementRenders = map getElementRender sortedEs
   getElementRender (element, _, local, _) =
     render element window local
-  interactive = toInteractive <$> reverse sortedEs
+  interactive = toInteractive <$> reverse (filter hasLabel sortedEs)
   toInteractive (element, view, local, _) = (element, view, local)
+  hasLabel (element, _, _, _) = fromDynamic (label' element) /= Just EmptyLabel

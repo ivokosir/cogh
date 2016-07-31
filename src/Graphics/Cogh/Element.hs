@@ -1,7 +1,10 @@
 module Graphics.Cogh.Element
   ( module Export
   , Angle, Point, Position, Size, Scale, Origin
-  , Element(..)
+  , Element (..)
+  , label
+  , setLabel
+  , removeLabel
   , emptyElement
   , rectangle
   , group
@@ -14,10 +17,25 @@ import Graphics.Cogh.Render as Export
   , textureSize
   )
 
+import Data.Dynamic
 import Graphics.Cogh.Element.Internal
 import Graphics.Cogh.Render
 import Graphics.Cogh.Matrix
 import Graphics.Cogh.Vector
+
+setLabel :: (Typeable a, Eq a) => a -> Element -> Element
+setLabel l element = element { label' = toDyn l }
+ where
+  _ = l == l
+
+label :: (Typeable a, Eq a) => Element -> Maybe a
+label element = l
+ where
+  l = fromDynamic $ label' element
+  _ = l == l
+
+removeLabel :: Element -> Element
+removeLabel = setLabel EmptyLabel
 
 emptyElement :: Element
 emptyElement = Element
@@ -29,7 +47,25 @@ emptyElement = Element
   , depth = 0
   , normalize = defaultNormalize
   , render = \ _ _ -> return ()
+  , label' = toDyn EmptyLabel
   }
+
+rectangle :: Size -> Color -> Element
+rectangle rectSize color = emptyElement
+  { size = rectSize
+  , render = rectRender }
+ where
+  rectRender window matrix = drawRect window matrix color
+
+image :: Texture -> Element
+image texture = emptyElement
+  { size = fromIntegral <$> textureSize texture
+  , render = textureRender }
+ where
+  textureRender window matrix = drawTexture window matrix texture
+
+group :: [Element] -> Element
+group es = emptyElement { normalize = groupNormalize es }
 
 defaultNormalize
   :: Element -> Matrix -> Float
@@ -53,23 +89,6 @@ viewAndLocalMatrix e parent = (view, local)
     , scaling (size e)
     , translation (negate $ origin e)
     ]
-
-rectangle :: Size -> Color -> Element
-rectangle rectSize color = emptyElement
-  { size = rectSize
-  , render = rectRender }
- where
-  rectRender window matrix = drawRect window matrix color
-
-image :: Texture -> Element
-image texture = emptyElement
-  { size = fromIntegral <$> textureSize texture
-  , render = textureRender }
- where
-  textureRender window matrix = drawTexture window matrix texture
-
-group :: [Element] -> Element
-group es = emptyElement { normalize = groupNormalize es }
 
 groupNormalize
   :: [Element] -> Element -> Matrix -> Float
