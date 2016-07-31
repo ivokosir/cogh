@@ -5,10 +5,13 @@ module Graphics.Cogh.WindowState
   , deltaTime
   , updateTime
   , initialWindowState
-  , getHoveredElement
+  , findElement
+  , findElementMouse
+  , findHoveredElement
   ) where
 
 import Data.List
+import Data.Typeable
 import Data.Word
 import Graphics.Cogh.Element
 import Graphics.Cogh.Matrix
@@ -75,8 +78,24 @@ initialWindowState = do
 foreign import ccall unsafe "time" cTime
   :: IO Word32
 
-getHoveredElement :: WindowState -> Maybe (Element, Vector)
-getHoveredElement ws = esAndRelativeMouse
+findElement :: (Typeable a, Eq a) => a -> WindowState -> Maybe Element
+findElement labelTarget ws =
+  find hasSameLabel onlyElements
+ where
+  onlyElements = toOnlyElement <$> elements ws
+  toOnlyElement (element, _, _) = element
+  hasSameLabel element = label element == Just labelTarget
+
+findElementMouse :: (Typeable a, Eq a) => a -> WindowState -> Maybe Vector
+findElementMouse labelTarget ws =
+  toMouseIfCorrectLabel =<< findHoveredElement ws
+ where
+  toMouseIfCorrectLabel (element, mouse) =
+    if label element == Just labelTarget
+      then Just mouse else Nothing
+
+findHoveredElement :: WindowState -> Maybe (Element, Vector)
+findHoveredElement ws = esAndRelativeMouse
  where
   es = elements ws
   esWithMouse = toMouse <$> es
