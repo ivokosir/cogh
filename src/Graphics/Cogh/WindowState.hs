@@ -1,5 +1,6 @@
 module Graphics.Cogh.WindowState
   ( WindowState (..)
+  , click
   , lmb
   , rmb
   , toWorld
@@ -38,6 +39,9 @@ data WindowState = WindowState
   , time :: Word32
   , elements :: [(Element, Matrix, Matrix)]
   }
+
+click :: WindowState -> Bool
+click ws = elem (Mouse.Button Mouse.Left Mouse.Release) (mouseButtons ws)
 
 lmb :: WindowState -> Bool
 lmb ws = elem Mouse.Left $ pressedMouseButtons ws
