@@ -1,5 +1,7 @@
 module Graphics.Cogh.WindowState
   ( WindowState (..)
+  , lmb
+  , rmb
   , toWorld
   , fromWorld
   , deltaTime
@@ -36,6 +38,12 @@ data WindowState = WindowState
   , time :: Word32
   , elements :: [(Element, Matrix, Matrix)]
   }
+
+lmb :: WindowState -> Bool
+lmb ws = elem Mouse.Left $ pressedMouseButtons ws
+
+rmb :: WindowState -> Bool
+rmb ws = elem Mouse.Right $ pressedMouseButtons ws
 
 toWorld :: WindowState -> Pixel -> Vector
 toWorld ws point = Point (x*px/wx) (y*py/wy)
