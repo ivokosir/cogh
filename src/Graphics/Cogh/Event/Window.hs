@@ -6,8 +6,8 @@ module Graphics.Cogh.Event.Window
 import Foreign.C
 import Foreign.Ptr
 import qualified Graphics.Cogh.Event.Helper as Helper
-import Graphics.Cogh.Window.Internal
 import Graphics.Cogh.Vector
+import Graphics.Cogh.Window.Internal
 
 data Event
   = Quit
@@ -40,5 +40,4 @@ foreign import ccall unsafe "sizeW" windowSizeW ::
 foreign import ccall unsafe "sizeH" windowSizeH ::
                Ptr () -> IO CUInt
 
-foreign import ccall unsafe "getQuit" cGetQuit ::
-               Window -> IO CInt
+foreign import ccall unsafe "getQuit" cGetQuit :: Window -> IO CInt

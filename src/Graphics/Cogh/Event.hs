@@ -3,10 +3,10 @@ module Graphics.Cogh.Event
   , pollEvents
   ) where
 
-import Graphics.Cogh.Window.Internal
 import qualified Graphics.Cogh.Event.Keyboard as Keyboard
 import qualified Graphics.Cogh.Event.Mouse as Mouse
 import qualified Graphics.Cogh.Event.Window as Window
+import Graphics.Cogh.Window.Internal
 
 data Event
   = Keyboard Keyboard.Event
@@ -19,11 +19,12 @@ pollEvents w = do
   keyboardEvents <- Keyboard.getEvents w
   mouseEvents <- Mouse.getEvents w
   windowEvents <- Window.getEvents w
-  return $ concat
-    [ fmap Keyboard keyboardEvents
-    , fmap Mouse mouseEvents
-    , fmap Graphics.Cogh.Event.Window windowEvents
-    ]
+  return $
+    concat
+      [ fmap Keyboard keyboardEvents
+      , fmap Mouse mouseEvents
+      , fmap Graphics.Cogh.Event.Window windowEvents
+      ]
 
 foreign import ccall unsafe "pollEvents" cPollEvents ::
                Window -> IO ()

@@ -44,11 +44,12 @@ getEvents w = do
   buttons <- getButtons w
   motions <- getMotions w
   scrolls <- getScrolls w
-  return $ concat
-    [ fmap EventButton buttons
-    , fmap EventMotion motions
-    , fmap EventScroll scrolls
-    ]
+  return $
+    concat
+      [ fmap EventButton buttons
+      , fmap EventMotion motions
+      , fmap EventScroll scrolls
+      ]
 
 getButtons :: Window -> IO [Button]
 getButtons = Helper.getEvents cGetButtons castButton

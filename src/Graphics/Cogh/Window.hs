@@ -8,15 +8,14 @@ module Graphics.Cogh.Window
 import Foreign.C
 import Foreign.Ptr
 import Graphics.Cogh.Element.Internal
-import Graphics.Cogh.Window.Internal
 import Graphics.Cogh.Vector
+import Graphics.Cogh.Window.Internal
 
 newWindow :: String -> IO (Maybe Window)
 newWindow title = do
   window <- withCString title cNewWindow
   if (\(Window ptr) -> ptr) window /= nullPtr
-    then
-      return $ Just window
+    then return $ Just window
     else return Nothing
 
 foreign import ccall unsafe "newWindow" cNewWindow ::

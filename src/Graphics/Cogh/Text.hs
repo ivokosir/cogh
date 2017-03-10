@@ -43,8 +43,7 @@ newTextureFromText w f text color = do
   cTexture <-
     withCFont f $ \cFont ->
       withCString text $ \cText ->
-        withColorPtr color $ \cColor ->
-          cNewTextureFromText w cFont cText cColor
+        withColorPtr color $ \cColor -> cNewTextureFromText w cFont cText cColor
   newTexture cTexture
 
 foreign import ccall unsafe "newTextureFromText"

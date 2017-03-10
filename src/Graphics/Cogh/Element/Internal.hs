@@ -31,16 +31,16 @@ instance Functor Element where
     , renderOrChildren = (fmap . fmap . fmap) f (renderOrChildren e)
     }
 
-newtype Event a
-  = Event { runEvent :: Window -> Target -> IO a }
+newtype Event a = Event
+  { runEvent :: Window -> Target -> IO a
+  }
 
 instance Functor Event where
-  fmap f (Event event) = Event $ \window target ->
-    fmap f (event window target)
-
+  fmap f (Event event) = Event $ \window target -> fmap f (event window target)
 
 data Target =
-  Target Matrix Matrix
+  Target Matrix
+         Matrix
 
 viewMatrix :: Target -> Matrix
 viewMatrix (Target view _) = view
