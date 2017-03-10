@@ -40,7 +40,7 @@ import Graphics.Cogh.Element.Internal
 import Graphics.Cogh.Matrix
 import Graphics.Cogh.Render
 import Graphics.Cogh.Vector
-import Graphics.Cogh.Window.Internal
+import Graphics.Cogh.Window
 
 position :: Element a -> Vector
 position = _position
