@@ -21,8 +21,7 @@ library
   default-language: Haskell2010
   ghc-options: -Wall
   default-extensions:
-    NamedFieldPuns,
-    DeriveDataTypeable
+    NamedFieldPuns
 
   build-depends:
     base >=4.8 && <4.10
@@ -34,23 +33,16 @@ library
     Graphics.Cogh.Image,
     Graphics.Cogh.Text,
     Graphics.Cogh.Window,
-    Graphics.Cogh.Key,
-    Graphics.Cogh.Mouse,
-    Graphics.Cogh.Joystick,
+    Graphics.Cogh.Event.Keyboard,
+    Graphics.Cogh.Event.Mouse,
     Graphics.Cogh.Vector
 
   other-modules:
-    Graphics.Cogh.Button,
     Graphics.Cogh.Color,
     Graphics.Cogh.Matrix,
     Graphics.Cogh.Render,
-    Graphics.Cogh.WindowState
     Graphics.Cogh.Element.Internal,
-    Graphics.Cogh.Event.Internal,
-    Graphics.Cogh.Key.Internal,
-    Graphics.Cogh.Mouse.Internal,
-    Graphics.Cogh.Joystick.Internal,
-    Graphics.Cogh.Window.CWindow
+    Graphics.Cogh.Event.Helper,
     Graphics.Cogh.Window.Internal
 
   c-sources:

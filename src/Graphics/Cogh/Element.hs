@@ -1,6 +1,11 @@
 module Graphics.Cogh.Element
   ( module Export
-  , Angle, Point, Position, Size, Scale, Origin
+  , Angle
+  , Point
+  , Position
+  , Size
+  , Scale
+  , Origin
   , Element
   , position
   , setPosition
@@ -19,9 +24,8 @@ module Graphics.Cogh.Element
   , depth
   , setDepth
   , moveDepth
-  , label
-  , setLabel
-  , removeLabel
+  , events
+  , setEvents
   , emptyElement
   , rectangle
   , group
@@ -29,147 +33,100 @@ module Graphics.Cogh.Element
   ) where
 
 import Graphics.Cogh.Color as Export hiding (withColorPtr)
-import Graphics.Cogh.Render as Export
-  ( Texture
-  , textureSize
-  )
+import Graphics.Cogh.Render as Export (Texture, textureSize)
 
-import Data.Dynamic
 import Data.Function
 import Graphics.Cogh.Element.Internal
-import Graphics.Cogh.Render
 import Graphics.Cogh.Matrix
+import Graphics.Cogh.Render
 import Graphics.Cogh.Vector
-import Graphics.Cogh.Window.CWindow
+import Graphics.Cogh.Window.Internal
 
-position :: Element -> Vector
-position = position'
+position :: Element a -> Vector
+position = _position
 
-setPosition :: Vector -> Element -> Element
-setPosition p e = e { position' = p }
+setPosition :: Vector -> Element a -> Element a
+setPosition p e = e {_position = p}
 
-move :: Vector -> Element -> Element
-move diff e = e { position' = position e + diff }
+move :: Vector -> Element a -> Element a
+move diff e = e {_position = position e + diff}
 
-size :: Element -> Vector
-size = size'
+size :: Element a -> Vector
+size = _size
 
-setSize :: Vector -> Element -> Element
-setSize p e = e { size' = p }
+setSize :: Vector -> Element a -> Element a
+setSize p e = e {_size = p}
 
-scale :: Element -> Vector
-scale = scale'
+scale :: Element a -> Vector
+scale = _scale
 
-setScale :: Vector -> Element -> Element
-setScale p e = e { scale' = p }
+setScale :: Vector -> Element a -> Element a
+setScale p e = e {_scale = p}
 
-scaleUp :: Vector -> Element -> Element
-scaleUp s e = e { scale' = scale e * s }
+scaleUp :: Vector -> Element a -> Element a
+scaleUp s e = e {_scale = scale e * s}
 
-origin :: Element -> Vector
-origin = origin'
+origin :: Element a -> Vector
+origin = _origin
 
-setOrigin :: Vector -> Element -> Element
-setOrigin p e = e { origin' = p }
+setOrigin :: Vector -> Element a -> Element a
+setOrigin p e = e {_origin = p}
 
-center :: Element -> Element
-center e = e { origin' = Point 0.5 0.5 }
+center :: Element a -> Element a
+center e = e {_origin = Point 0.5 0.5}
 
-angle :: Element -> Angle
-angle = angle'
+angle :: Element a -> Angle
+angle = _angle
 
-setAngle :: Angle -> Element -> Element
-setAngle p e = e { angle' = p }
+setAngle :: Angle -> Element a -> Element a
+setAngle p e = e {_angle = p}
 
-rotate :: Angle -> Element -> Element
-rotate diff e = e { angle' = angle e + diff }
+rotate :: Angle -> Element a -> Element a
+rotate diff e = e {_angle = angle e + diff}
 
-depth :: Element -> Float
-depth = depth'
+depth :: Element a -> Float
+depth = _depth
 
-setDepth :: Float -> Element -> Element
-setDepth p e = e { depth' = p }
+setDepth :: Float -> Element a -> Element a
+setDepth p e = e {_depth = p}
 
-moveDepth :: Float -> Element -> Element
-moveDepth diff e = e { depth' = depth e + diff }
+moveDepth :: Float -> Element a -> Element a
+moveDepth diff e = e {_depth = depth e + diff}
 
-setLabel :: (Typeable a, Eq a) => a -> Element -> Element
-setLabel l element = element { label' = toDyn l }
- where
-  _ = l == l
+events :: Element a -> [Event a]
+events = _events
 
-label :: (Typeable a, Eq a) => Element -> Maybe a
-label element = l
- where
-  l = fromDynamic $ label' element
-  _ = l == l
+setEvents :: [Event a] -> Element a -> Element a
+setEvents es e = e {_events = es}
 
-removeLabel :: Element -> Element
-removeLabel = setLabel EmptyLabel
+setRender :: (Window -> Matrix -> IO ()) -> Element a -> Element a
+setRender newRender e = e {renderOrChildren = Left newRender}
 
-setRender :: (WindowPtr -> Matrix -> IO ()) -> Element -> Element
-setRender newRender e = e { render = newRender }
-
-emptyElement :: Element
-emptyElement = Element
-  { position' = Point 0 0
-  , size' = Point 0 0
-  , scale' = Point 1 1
-  , origin' = Point 0 0
-  , angle' = 0
-  , depth' = 0
-  , label' = toDyn EmptyLabel
-  , normalize = defaultNormalize
-  , render = \ _ _ -> return ()
+emptyElement :: Element a
+emptyElement =
+  Element
+  { _position = Point 0 0
+  , _size = Point 0 0
+  , _scale = Point 1 1
+  , _origin = Point 0 0
+  , _angle = 0
+  , _depth = 0
+  , _events = []
+  , renderOrChildren = Right []
   }
 
-rectangle :: Size -> Color -> Element
-rectangle rectSize color = emptyElement
-  & setSize rectSize
-  & setRender rectRender
- where
-  rectRender window matrix = drawRect window matrix color
+rectangle :: Size -> Color -> Element a
+rectangle rectSize color =
+  emptyElement & setSize rectSize & setRender rectRender
+  where
+    rectRender window matrix = drawRect window matrix color
 
-image :: Texture -> Element
-image texture = emptyElement
-  & setSize (fromIntegral <$> textureSize texture)
-  & setRender textureRender
- where
-  textureRender window matrix = drawTexture window matrix texture
+image :: Texture -> Element a
+image texture =
+  emptyElement & setSize (fromIntegral <$> textureSize texture) &
+  setRender textureRender
+  where
+    textureRender window matrix = drawTexture window matrix texture
 
-group :: [Element] -> Element
-group es = emptyElement { normalize = groupNormalize es }
-
-defaultNormalize
-  :: Element -> Matrix -> Float
-  -> [(Element, Matrix, Matrix, Float)]
-defaultNormalize e parentMatrix parentDepth =
-  [(e, view, local, parentDepth + depth e)]
- where
-  (view, local) = viewAndLocalMatrix e parentMatrix
-
-viewAndLocalMatrix :: Element -> Matrix -> (Matrix, Matrix)
-viewAndLocalMatrix e parent = (view, local)
- where
-  view = mconcat
-    [ parent
-    , translation (position e)
-    , rotation (angle e)
-    , scaling (scale e)
-    ]
-  local = mconcat
-    [ view
-    , scaling (size e)
-    , translation (negate $ origin e)
-    ]
-
-groupNormalize
-  :: [Element] -> Element -> Matrix -> Float
-  -> [(Element, Matrix, Matrix, Float)]
-groupNormalize es e parentMatrix parentDepth =
-  (e, view, local, newDepth) :
-    concatMap normalizeChild es
- where
-  newDepth = parentDepth + depth e
-  normalizeChild child = normalize child child view newDepth
-  (view, local) = viewAndLocalMatrix e parentMatrix
+group :: [Element a] -> Element a
+group es = emptyElement {renderOrChildren = Right es}

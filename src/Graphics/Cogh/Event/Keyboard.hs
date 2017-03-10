@@ -1,23 +1,20 @@
-module Graphics.Cogh.Key.Internal
-  ( Key(..)
+module Graphics.Cogh.Event.Keyboard
+  ( Event(..)
   , Code(..)
   , State(..)
-  , getKeys
+  , getEvents
   ) where
 
-import Graphics.Cogh.Button
-import Graphics.Cogh.Event.Internal
-import Graphics.Cogh.Window.CWindow
+import Foreign.C
+import Foreign.Ptr
+import qualified Graphics.Cogh.Event.Helper as Helper
+import Graphics.Cogh.Window.Internal
 import System.IO.Unsafe
 
-data Key = Key
+data Event = Event
   { code :: Code
   , state :: State
   } deriving (Eq, Read, Show)
-
-instance Button Key where
-  isPressed (Key _ (Press _)) = True
-  isPressed _ = False
 
 newtype Code =
   Code CUInt
@@ -28,20 +25,20 @@ data State
   | Release
   deriving (Eq, Read, Show)
 
-getKeys :: WindowPtr -> IO [Key]
-getKeys = getEvents cGetKeys castKey
+getEvents :: Window -> IO [Event]
+getEvents = Helper.getEvents cGetKeys castKey
 
-castKey :: Ptr () -> IO Key
+castKey :: Ptr () -> IO Event
 castKey cKey = do
   cCode <- keyCode cKey
   isPress <- keyIsPress cKey
   isRepeat <- keyIsRepeat cKey
   return
-    Key
+    Event
     { code = Code cCode
     , state =
-        if cBool isPress
-          then Press (cBool isRepeat)
+        if Helper.cBool isPress
+          then Press (Helper.cBool isRepeat)
           else Release
     }
 
@@ -56,7 +53,7 @@ instance Show Code where
       toString = unsafePerformIO $ peekCString $ showCode cCode
 
 foreign import ccall unsafe "getKeys" cGetKeys ::
-               WindowPtr -> IO (Ptr (Ptr ()))
+               Window -> IO (Ptr (Ptr ()))
 
 foreign import ccall unsafe "keyIsPress" keyIsPress ::
                Ptr () -> IO CInt

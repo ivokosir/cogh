@@ -10,12 +10,10 @@ import Graphics.Cogh.Window.Internal
 type ImagePtr = Ptr ()
 
 newTextureFromImage :: Window -> FilePath -> IO Texture
-newTextureFromImage window file = do
+newTextureFromImage w file = do
   cTexture <-
-    withCWindow window $ \ cWindow ->
-      withCString file $ \ cString ->
-        cNewTextureFromImage cWindow cString
+    withCString file $ \cString -> cNewTextureFromImage w cString
   newTexture cTexture
 
-foreign import ccall unsafe "newTextureFromImage" cNewTextureFromImage
-  :: WindowPtr -> CString -> IO ImagePtr
+foreign import ccall unsafe "newTextureFromImage"
+               cNewTextureFromImage :: Window -> CString -> IO ImagePtr

@@ -1,18 +1,16 @@
-module Graphics.Cogh.Event.Internal
+module Graphics.Cogh.Event.Helper
   ( getEvents
   , cBool
-  , module Foreign.C
-  , module Foreign.Ptr
   ) where
 
 import Foreign.C
 import Foreign.Marshal.Array
 import Foreign.Ptr
-import Graphics.Cogh.Window.CWindow
+import Graphics.Cogh.Window.Internal
 
-getEvents :: (WindowPtr -> IO (Ptr (Ptr ())))
+getEvents :: (Window -> IO (Ptr (Ptr ())))
           -> (Ptr () -> IO a)
-          -> WindowPtr
+          -> Window
           -> IO [a]
 getEvents cGetEvents castEvent w = do
   ptrs <- peekArray0 nullPtr =<< cGetEvents w

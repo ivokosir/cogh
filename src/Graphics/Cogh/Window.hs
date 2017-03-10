@@ -1,53 +1,32 @@
 module Graphics.Cogh.Window
-  ( module Export
-  , Window
+  ( Window
   , newWindow
   , deleteWindow
-  , updateWindow
-  , refreshWindow
+  , render
   ) where
 
-import Graphics.Cogh.WindowState as Export hiding
-  ( updateTime
-  , initialWindowState
-  )
-
-import Data.IORef
 import Foreign.C
 import Foreign.Ptr
 import Graphics.Cogh.Element.Internal
-import Graphics.Cogh.Event
-import Graphics.Cogh.WindowState
 import Graphics.Cogh.Window.Internal
+import Graphics.Cogh.Vector
 
 newWindow :: String -> IO (Maybe Window)
 newWindow title = do
-  windowPtr <- withCString title cNewWindow
-  if (\ (WindowPtr p) -> p) windowPtr /= nullPtr
-    then do
-      stateRef <- newIORef =<< initialWindowState
-      return . Just $ Window windowPtr stateRef
+  window <- withCString title cNewWindow
+  if (\(Window ptr) -> ptr) window /= nullPtr
+    then
+      return $ Just window
     else return Nothing
 
-foreign import ccall unsafe "newWindow" cNewWindow
-  :: CString -> IO WindowPtr
+foreign import ccall unsafe "newWindow" cNewWindow ::
+               CString -> IO Window
 
-foreign import ccall unsafe "deleteWindow" deleteWindow
-  :: WindowPtr -> IO ()
+foreign import ccall unsafe "deleteWindow" deleteWindow ::
+               Window -> IO ()
 
-updateWindow :: Window -> IO WindowState
-updateWindow window = do
-  oldState <- getWindowState window
-  stateWithEvents <- withCWindow window $ \ cWindow ->
-    pollEvents cWindow oldState
-  newState <- updateTime stateWithEvents
-  setWindowState window newState
-  return newState
-
-refreshWindow :: Window -> Element -> IO WindowState
-refreshWindow window element = do
-  state <- getWindowState window
-  newElements <- withCWindow window $ \ cWindow ->
-      renderRoot cWindow (windowSize state) element
-  setWindowState window state { elements = newElements }
-  updateWindow window
+render :: Window -> Pixel -> Element a -> IO [a]
+render window size element = do
+  let (events, renderFunction) = normalize size element
+  renderFunction window
+  sequence (fmap (\event -> event window) events)

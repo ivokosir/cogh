@@ -1,7 +1,7 @@
 module Graphics.Cogh.Key
-  ( Key (..)
+  ( Key(..)
   , Code
-  , State (..)
+  , State(..)
   ) where
 
 import Graphics.Cogh.Key.Internal

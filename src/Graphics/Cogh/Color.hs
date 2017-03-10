@@ -1,6 +1,9 @@
 module Graphics.Cogh.Color
   ( Color(..)
-  , R, G, B, A
+  , R
+  , G
+  , B
+  , A
   , red
   , green
   , blue
@@ -14,11 +17,18 @@ import Foreign.Marshal.Array
 import Foreign.Ptr
 
 type R = Float
+
 type G = Float
+
 type B = Float
+
 type A = Float
 
-data Color = Color R G B A
+data Color =
+  Color R
+        G
+        B
+        A
 
 red :: Color
 red = Color 1 0 0 1
