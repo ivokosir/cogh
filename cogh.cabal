@@ -30,19 +30,19 @@ library
     Graphics.Cogh,
     Graphics.Cogh.Element,
     Graphics.Cogh.Event,
-    Graphics.Cogh.Image,
-    Graphics.Cogh.Text,
-    Graphics.Cogh.Window,
     Graphics.Cogh.Event.Keyboard,
     Graphics.Cogh.Event.Mouse,
-    Graphics.Cogh.Vector
+    Graphics.Cogh.Image,
+    Graphics.Cogh.Text,
+    Graphics.Cogh.Vector,
+    Graphics.Cogh.Window
 
   other-modules:
     Graphics.Cogh.Color,
-    Graphics.Cogh.Matrix,
-    Graphics.Cogh.Render,
     Graphics.Cogh.Element.Internal,
     Graphics.Cogh.Event.Helper,
+    Graphics.Cogh.Matrix,
+    Graphics.Cogh.Render,
     Graphics.Cogh.Window.Internal
 
   c-sources:
