@@ -8,7 +8,7 @@ module Graphics.Cogh.Window
 import Foreign.C
 import Foreign.Ptr
 import Graphics.Cogh.Element.Internal
-import Graphics.Cogh.Vector
+import qualified Graphics.Cogh.Vector as V
 import Graphics.Cogh.Window.Internal
 
 newWindow :: String -> IO (Maybe Window)
@@ -24,7 +24,7 @@ foreign import ccall unsafe "newWindow" cNewWindow ::
 foreign import ccall unsafe "deleteWindow" deleteWindow ::
                Window -> IO ()
 
-render :: Window -> Pixel -> Element a -> IO [a]
+render :: Window -> V.Pixel -> Element a -> IO [a]
 render window size element = do
   let (events, renderFunction) = normalize size element
   renderFunction window

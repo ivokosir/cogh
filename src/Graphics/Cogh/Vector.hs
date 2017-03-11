@@ -1,57 +1,95 @@
-module Graphics.Cogh.Vector where
+module Graphics.Cogh.Vector
+  ( Point
+  , point
+  , x
+  , y
+  , setX
+  , setY
+  , Pixel
+  , pixel
+  , Vector
+  , vector
+  , angle
+  , setAngle
+  , rotate
+  , length
+  , setLength
+  , normalize
+  ) where
 
-data Point a = Point
-  { x :: a
-  , y :: a
-  } deriving (Eq, Show, Read)
+import Prelude hiding (length)
 
-type Angle = Float
+data Point a =
+  Point a
+        a
+  deriving (Eq, Show, Read)
+
+point :: a -> a -> Point a
+point = Point
+
+x :: Point a -> a
+x (Point x' _) = x'
+
+y :: Point a -> a
+y (Point _ y') = y'
+
+setX :: Point a -> a -> Point a
+setX p x' = point x' (y p)
+
+setY :: Point a -> a -> Point a
+setY p y' = point (x p) y'
 
 type Pixel = Point Int
 
+pixel :: Int -> Int -> Pixel
+pixel = point
+
 type Vector = Point Float
+
+vector :: Float -> Float -> Vector
+vector = point
 
 instance Num a =>
          Num (Point a) where
-  (Point x1 y1) + (Point x2 y2) = Point (x1 + x2) (y1 + y2)
-  (Point x1 y1) - (Point x2 y2) = Point (x1 - x2) (y1 - y2)
-  (Point x1 y1) * (Point x2 y2) = Point (x1 * x2) (y1 * y2)
+  p1 + p2 = point (x p1 + x p2) (y p1 + y p2)
+  p1 - p2 = point (x p1 - x p2) (y p1 - y p2)
+  p1 * p2 = point (x p1 * x p2) (y p1 * y p2)
   abs = fmap abs
   signum = fmap signum
-  fromInteger x = Point (fromInteger x) (fromInteger x)
+  fromInteger a = point (fromInteger a) (fromInteger a)
 
 instance Functor Point where
-  fmap f Point {x, y} = Point (f x) (f y)
+  fmap f p = point (f (x p)) (f (y p))
 
-vectorScale :: Float -> Vector -> Vector
-vectorScale s Point {x, y} = Point (s * x) (s * y)
+scale :: Float -> Vector -> Vector
+scale s p = point (s * x p) (s * y p)
 
-vectorAngle :: Vector -> Angle
-vectorAngle Point {x, y} = atan2 y x
+angle :: Vector -> Float
+angle p = atan2 (y p) (x p)
 
-setVectorAngle :: Angle -> Vector -> Vector
-setVectorAngle angle v = vectorRotate (angle - oldAngle) v
+setAngle :: Float -> Vector -> Vector
+setAngle newAngle v = rotate (newAngle - oldAngle) v
   where
-    oldAngle = vectorAngle v
+    oldAngle = angle v
 
-vectorRotate :: Angle -> Vector -> Vector
-vectorRotate angle Point {x, y} = Point {x = x', y = y'}
+rotate :: Float -> Vector -> Vector
+rotate diff p = point x' y'
   where
-    c = cos angle
-    s = sin angle
-    x' = x * c - y * s
-    y' = x * s + y * c
+    c = cos diff
+    s = sin diff
+    x' = x p * c - y p * s
+    y' = x p * s + y p * c
 
-vectorLength :: Vector -> Float
-vectorLength Point {x, y} = sqrt (x ** 2 + y ** 2)
+length :: Vector -> Float
+length p = sqrt (x p ** 2 + y p ** 2)
 
-setVectorLength :: Float -> Vector -> Vector
-setVectorLength newLength p
+setLength :: Float -> Vector -> Vector
+setLength newLength p
   | oldLength == 0 = Point 0 0
-  | otherwise = vectorScale lengthRatio p
+  | otherwise = scale lengthRatio p
   where
-    oldLength = vectorLength p
+    oldLength = length p
     lengthRatio = newLength / oldLength
 
-vectorNormalize :: Vector -> Vector
-vectorNormalize = setVectorLength 1
+normalize :: Vector -> Vector
+normalize = setLength 1

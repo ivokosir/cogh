@@ -1,26 +1,20 @@
 module Graphics.Cogh.Event.Mouse
-  ( Event(..)
-  , Button(..)
+  ( Button(..)
   , Code(..)
   , State(..)
   , Motion(..)
-  , Position
-  , Scroll
-  , getEvents
+  , getButtons
+  , getMotions
+  , getScrolls
   ) where
 
 import Foreign.C
 import Foreign.Ptr
-import qualified Graphics.Cogh.Event.Helper as Helper
-import Graphics.Cogh.Vector
+import Graphics.Cogh.Event.Helper
+import qualified Graphics.Cogh.Vector as V
 import Graphics.Cogh.Window.Internal
 
 import Prelude hiding (Left, Right)
-
-data Event
-  = EventButton Button
-  | EventMotion Motion
-  | EventScroll Scroll
 
 data Button = Button
   { code :: Code
@@ -39,20 +33,8 @@ data State
   | Release
   deriving (Eq, Read, Show)
 
-getEvents :: Window -> IO [Event]
-getEvents w = do
-  buttons <- getButtons w
-  motions <- getMotions w
-  scrolls <- getScrolls w
-  return $
-    concat
-      [ fmap EventButton buttons
-      , fmap EventMotion motions
-      , fmap EventScroll scrolls
-      ]
-
 getButtons :: Window -> IO [Button]
-getButtons = Helper.getEvents cGetButtons castButton
+getButtons = getEvents cGetButtons castButton
 
 castButton :: Ptr () -> IO Button
 castButton cButton = do
@@ -62,28 +44,26 @@ castButton cButton = do
   isRight <- buttonIsRight cButton
   isPress <- buttonIsPress cButton
   let code'
-        | Helper.cBool isLeft = Left
-        | Helper.cBool isMiddle = Middle
-        | Helper.cBool isRight = Right
+        | cBool isLeft = Left
+        | cBool isMiddle = Middle
+        | cBool isRight = Right
         | otherwise = Other (fromIntegral ccode)
   return
     Button
     { code = code'
     , state =
-        if Helper.cBool isPress
+        if cBool isPress
           then Press
           else Release
     }
 
 data Motion = Motion
-  { position :: Position
-  , motion :: Pixel
+  { position :: V.Pixel
+  , motion :: V.Pixel
   } deriving (Eq, Show, Read)
 
-type Position = Pixel
-
 getMotions :: Window -> IO [Motion]
-getMotions = Helper.getEvents cGetMotions castMotion
+getMotions = getEvents cGetMotions castMotion
 
 castMotion :: Ptr () -> IO Motion
 castMotion cMotion = do
@@ -93,20 +73,18 @@ castMotion cMotion = do
   cMotionY <- motionMotionY cMotion
   return
     Motion
-    { position = Point (fromIntegral positionX) (fromIntegral positionY)
-    , motion = Point (fromIntegral cMotionX) (fromIntegral cMotionY)
+    { position = V.pixel (fromIntegral positionX) (fromIntegral positionY)
+    , motion = V.pixel (fromIntegral cMotionX) (fromIntegral cMotionY)
     }
 
-type Scroll = Pixel
+getScrolls :: Window -> IO [V.Pixel]
+getScrolls = getEvents cGetScrolls castScroll
 
-getScrolls :: Window -> IO [Scroll]
-getScrolls = Helper.getEvents cGetScrolls castScroll
-
-castScroll :: Ptr () -> IO Scroll
+castScroll :: Ptr () -> IO V.Pixel
 castScroll cScroll = do
   x <- scrollX cScroll
   y <- scrollY cScroll
-  return $ Point (fromIntegral x) (fromIntegral y)
+  return $ V.pixel (fromIntegral x) (fromIntegral y)
 
 foreign import ccall unsafe "getMouseButtons" cGetButtons ::
                Window -> IO (Ptr (Ptr ()))

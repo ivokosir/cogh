@@ -27,7 +27,7 @@ newTexture p = do
   foreignPtr <- newForeignPtr deleteTextureFunPtr p
   width <- cTextureWidth p
   height <- cTextureHeight p
-  return $ Texture foreignPtr $ Point (fromIntegral width) (fromIntegral height)
+  return $ Texture foreignPtr $ pixel (fromIntegral width) (fromIntegral height)
 
 textureSize :: Texture -> Pixel
 textureSize (Texture _ p) = p

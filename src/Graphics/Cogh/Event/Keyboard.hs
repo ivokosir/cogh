@@ -1,17 +1,17 @@
 module Graphics.Cogh.Event.Keyboard
-  ( Event(..)
+  ( Key(..)
   , Code(..)
   , State(..)
-  , getEvents
+  , getKeys
   ) where
 
 import Foreign.C
 import Foreign.Ptr
-import qualified Graphics.Cogh.Event.Helper as Helper
+import Graphics.Cogh.Event.Helper
 import Graphics.Cogh.Window.Internal
 import System.IO.Unsafe
 
-data Event = Event
+data Key = Key
   { code :: Code
   , state :: State
   } deriving (Eq, Read, Show)
@@ -25,20 +25,20 @@ data State
   | Release
   deriving (Eq, Read, Show)
 
-getEvents :: Window -> IO [Event]
-getEvents = Helper.getEvents cGetKeys castKey
+getKeys :: Window -> IO [Key]
+getKeys = getEvents cGetKeys castKey
 
-castKey :: Ptr () -> IO Event
+castKey :: Ptr () -> IO Key
 castKey cKey = do
   cCode <- keyCode cKey
   isPress <- keyIsPress cKey
   isRepeat <- keyIsRepeat cKey
   return
-    Event
+    Key
     { code = Code cCode
     , state =
-        if Helper.cBool isPress
-          then Press (Helper.cBool isRepeat)
+        if cBool isPress
+          then Press (cBool isRepeat)
           else Release
     }
 

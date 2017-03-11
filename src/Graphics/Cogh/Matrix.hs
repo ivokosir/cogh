@@ -1,6 +1,5 @@
 module Graphics.Cogh.Matrix
   ( Matrix
-  , Angle
   , Position
   , Size
   , Scale
@@ -19,15 +18,15 @@ module Graphics.Cogh.Matrix
 
 import Foreign.Marshal.Array
 import Foreign.Ptr
-import Graphics.Cogh.Vector
+import qualified Graphics.Cogh.Vector as V
 
-type Position = Vector
+type Position = V.Vector
 
-type Size = Vector
+type Size = V.Vector
 
-type Scale = Vector
+type Scale = V.Vector
 
-type Origin = Vector
+type Origin = V.Vector
 
 data Matrix =
   Matrix Float
@@ -45,27 +44,39 @@ instance Monoid Matrix where
 identity :: Matrix
 identity = Matrix 1 0 0 0 1 0
 
-translation :: Vector -> Matrix
-translation Point {x, y} = Matrix 1 0 x 0 1 y
+translation :: V.Vector -> Matrix
+translation v = Matrix 1 0 x 0 1 y
+  where
+    x = V.x v
+    y = V.y v
 
-scaling :: Vector -> Matrix
-scaling Point {x, y} = Matrix x 0 0 0 y 0
+scaling :: V.Vector -> Matrix
+scaling v = Matrix x 0 0 0 y 0
+  where
+    x = V.x v
+    y = V.y v
 
-rotation :: Angle -> Matrix
+rotation :: Float -> Matrix
 rotation angle = Matrix c (-s) 0 s c 0
   where
     s = sin angle
     c = cos angle
 
-projection :: Vector -> Matrix
-projection Point {x = w, y = h} = Matrix (2 / w) 0 (-1) 0 (-2 / h) 1
+projection :: V.Vector -> Matrix
+projection v = Matrix (2 / w) 0 (-1) 0 (-2 / h) 1
+  where
+    w = V.x v
+    h = V.y v
 
-model :: Position -> Scale -> Angle -> Matrix
-model Point {x, y} Point {x = w, y = h} angle =
-  Matrix (c * w) (-s * h) x (s * w) (c * h) y
+model :: Position -> Scale -> Float -> Matrix
+model position scale angle = Matrix (c * w) (-s * h) x (s * w) (c * h) y
   where
     s = sin angle
     c = cos angle
+    x = V.x position
+    y = V.y position
+    w = V.x scale
+    h = V.y scale
 
 dot :: Matrix -> Matrix -> Matrix
 dot (Matrix a1 d1 g1 b1 e1 h1) (Matrix a2 d2 g2 b2 e2 h2) =
@@ -89,9 +100,12 @@ inverse (Matrix a d g b e h) = Matrix a' d' g' b' e' h'
     g' = (d * h - g * e) * invdet
     h' = (g * b - a * h) * invdet
 
-dotVector :: Matrix -> Vector -> Vector
-dotVector (Matrix a d g b e h) Point {x, y} =
-  Point (a * x + d * y + g) (b * x + e * y + h)
+dotVector :: Matrix -> V.Vector -> V.Vector
+dotVector (Matrix a d g b e h) v =
+  V.vector (a * x + d * y + g) (b * x + e * y + h)
+  where
+    x = V.x v
+    y = V.y v
 
 withMatrixPtr :: Matrix -> (Ptr Float -> IO a) -> IO a
 withMatrixPtr (Matrix a d g b e h) = withArray [a, b, 0, d, e, 0, g, h, 1]

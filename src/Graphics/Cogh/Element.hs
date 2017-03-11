@@ -1,7 +1,5 @@
 module Graphics.Cogh.Element
   ( module Export
-  , Angle
-  , Point
   , Position
   , Size
   , Scale
@@ -39,49 +37,49 @@ import Data.Function
 import Graphics.Cogh.Element.Internal
 import Graphics.Cogh.Matrix
 import Graphics.Cogh.Render
-import Graphics.Cogh.Vector
+import qualified Graphics.Cogh.Vector as V
 import Graphics.Cogh.Window
 
-position :: Element a -> Vector
+position :: Element a -> V.Vector
 position = _position
 
-setPosition :: Vector -> Element a -> Element a
+setPosition :: V.Vector -> Element a -> Element a
 setPosition p e = e {_position = p}
 
-move :: Vector -> Element a -> Element a
+move :: V.Vector -> Element a -> Element a
 move diff e = e {_position = position e + diff}
 
-size :: Element a -> Vector
+size :: Element a -> V.Vector
 size = _size
 
-setSize :: Vector -> Element a -> Element a
+setSize :: V.Vector -> Element a -> Element a
 setSize p e = e {_size = p}
 
-scale :: Element a -> Vector
+scale :: Element a -> V.Vector
 scale = _scale
 
-setScale :: Vector -> Element a -> Element a
+setScale :: V.Vector -> Element a -> Element a
 setScale p e = e {_scale = p}
 
-scaleUp :: Vector -> Element a -> Element a
+scaleUp :: V.Vector -> Element a -> Element a
 scaleUp s e = e {_scale = scale e * s}
 
-origin :: Element a -> Vector
+origin :: Element a -> V.Vector
 origin = _origin
 
-setOrigin :: Vector -> Element a -> Element a
+setOrigin :: V.Vector -> Element a -> Element a
 setOrigin p e = e {_origin = p}
 
 center :: Element a -> Element a
-center e = e {_origin = Point 0.5 0.5}
+center e = e {_origin = V.vector 0.5 0.5}
 
-angle :: Element a -> Angle
+angle :: Element a -> Float
 angle = _angle
 
-setAngle :: Angle -> Element a -> Element a
+setAngle :: Float -> Element a -> Element a
 setAngle p e = e {_angle = p}
 
-rotate :: Angle -> Element a -> Element a
+rotate :: Float -> Element a -> Element a
 rotate diff e = e {_angle = angle e + diff}
 
 depth :: Element a -> Float
@@ -105,10 +103,10 @@ setRender newRender e = e {renderOrChildren = Left newRender}
 emptyElement :: Element a
 emptyElement =
   Element
-  { _position = Point 0 0
-  , _size = Point 0 0
-  , _scale = Point 1 1
-  , _origin = Point 0 0
+  { _position = V.vector 0 0
+  , _size = V.vector 0 0
+  , _scale = V.vector 1 1
+  , _origin = V.vector 0 0
   , _angle = 0
   , _depth = 0
   , _events = []

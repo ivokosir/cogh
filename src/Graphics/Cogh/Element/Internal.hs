@@ -10,7 +10,7 @@ module Graphics.Cogh.Element.Internal
 import Data.List (sortBy)
 import Data.Maybe (catMaybes)
 import Graphics.Cogh.Matrix
-import Graphics.Cogh.Vector
+import qualified Graphics.Cogh.Vector as V
 import Graphics.Cogh.Window.Internal
 
 data Element a = Element
@@ -18,7 +18,7 @@ data Element a = Element
   , _size :: Size
   , _scale :: Scale
   , _origin :: Origin
-  , _angle :: Angle
+  , _angle :: Float
   , _depth :: Float
   , _events :: [Event a]
   , renderOrChildren :: Either (Window -> Matrix -> IO ()) [Element a]
@@ -48,7 +48,7 @@ viewMatrix (Target view _) = view
 localMatrix :: Target -> Matrix
 localMatrix (Target _ local) = local
 
-normalize :: Pixel -> Element a -> ([Window -> IO a], Window -> IO ())
+normalize :: V.Pixel -> Element a -> ([Window -> IO a], Window -> IO ())
 normalize screenSize e = (events, renderAll)
   where
     matrix = projection $ fromIntegral <$> screenSize
