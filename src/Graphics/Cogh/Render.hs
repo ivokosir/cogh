@@ -1,20 +1,27 @@
 module Graphics.Cogh.Render
-  ( newTexture
-  , clear
+  ( clear
   , swapBuffers
-  , drawRect
   , Texture
+  , newTexture
   , drawTexture
   , textureSize
+  , withColorPtr
+  , drawRect
   ) where
 
 import Foreign.C
+import Foreign.Marshal.Array
 import Foreign.ForeignPtr
 import Foreign.Ptr
 import Graphics.Cogh.Color
 import Graphics.Cogh.Matrix
 import Graphics.Cogh.Vector
 import Graphics.Cogh.Window.Internal
+
+foreign import ccall unsafe "clear" clear :: Window -> IO ()
+
+foreign import ccall unsafe "swapBuffers" swapBuffers ::
+               Window -> IO ()
 
 data Texture =
   Texture (ForeignPtr ())
@@ -52,10 +59,8 @@ foreign import ccall unsafe "textureHeight" cTextureHeight ::
 foreign import ccall unsafe "&deleteTexture" deleteTextureFunPtr ::
                FunPtr (TexturePtr -> IO ())
 
-foreign import ccall unsafe "clear" clear :: Window -> IO ()
-
-foreign import ccall unsafe "swapBuffers" swapBuffers ::
-               Window -> IO ()
+withColorPtr :: Color -> (Ptr Float -> IO a) -> IO a
+withColorPtr (Color r g b a) = withArray [r, g, b, a]
 
 drawRect :: Window -> Matrix -> Color -> IO ()
 drawRect window matrix color =

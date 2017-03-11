@@ -30,7 +30,7 @@ module Graphics.Cogh.Element
   , image
   ) where
 
-import Graphics.Cogh.Color as Export hiding (withColorPtr)
+import Graphics.Cogh.Color as Export
 import Graphics.Cogh.Render as Export (Texture, textureSize)
 
 import Data.Function

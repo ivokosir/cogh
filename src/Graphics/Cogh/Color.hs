@@ -10,11 +10,7 @@ module Graphics.Cogh.Color
   , black
   , white
   , transparent
-  , withColorPtr
   ) where
-
-import Foreign.Marshal.Array
-import Foreign.Ptr
 
 type R = Float
 
@@ -47,6 +43,3 @@ white = Color 1 1 1 1
 
 transparent :: Color
 transparent = Color 0 0 0 0
-
-withColorPtr :: Color -> (Ptr Float -> IO a) -> IO a
-withColorPtr (Color r g b a) = withArray [r, g, b, a]
