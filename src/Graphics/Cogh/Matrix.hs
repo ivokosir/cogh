@@ -1,5 +1,5 @@
 module Graphics.Cogh.Matrix
-  ( Matrix
+  ( Matrix(..)
   , Position
   , Size
   , Scale
@@ -13,11 +13,8 @@ module Graphics.Cogh.Matrix
   , dot
   , inverse
   , dotVector
-  , withMatrixPtr
   ) where
 
-import Foreign.Marshal.Array
-import Foreign.Ptr
 import qualified Graphics.Cogh.Vector as V
 
 type Position = V.Vector
@@ -106,6 +103,3 @@ dotVector (Matrix a d g b e h) v =
   where
     x = V.x v
     y = V.y v
-
-withMatrixPtr :: Matrix -> (Ptr Float -> IO a) -> IO a
-withMatrixPtr (Matrix a d g b e h) = withArray [a, b, 0, d, e, 0, g, h, 1]

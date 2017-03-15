@@ -10,8 +10,8 @@ module Graphics.Cogh.Render
   ) where
 
 import Foreign.C
-import Foreign.Marshal.Array
 import Foreign.ForeignPtr
+import Foreign.Marshal.Array
 import Foreign.Ptr
 import Graphics.Cogh.Color
 import Graphics.Cogh.Matrix
@@ -41,6 +41,9 @@ textureSize (Texture _ p) = p
 
 withCTexture :: Texture -> (Ptr () -> IO a) -> IO a
 withCTexture (Texture foreignPtr _) = withForeignPtr foreignPtr
+
+withMatrixPtr :: Matrix -> (Ptr Float -> IO a) -> IO a
+withMatrixPtr (Matrix a d g b e h) = withArray [a, b, 0, d, e, 0, g, h, 1]
 
 drawTexture :: Window -> Matrix -> Texture -> IO ()
 drawTexture window matrix texture =

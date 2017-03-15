@@ -26,6 +26,7 @@ library
 
   exposed-modules:
     Graphics.Cogh,
+    Graphics.Cogh.Color,
     Graphics.Cogh.Element,
     Graphics.Cogh.Event,
     Graphics.Cogh.Event.Keyboard,
@@ -36,7 +37,6 @@ library
     Graphics.Cogh.Window
 
   other-modules:
-    Graphics.Cogh.Color,
     Graphics.Cogh.Element.Internal,
     Graphics.Cogh.Event.Helper,
     Graphics.Cogh.Matrix,
