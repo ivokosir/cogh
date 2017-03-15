@@ -1,7 +1,5 @@
 module Graphics.Cogh.Element.Internal
   ( Element(..)
-  , Event(..)
-  , Target
   , viewMatrix
   , localMatrix
   , normalize
@@ -9,7 +7,9 @@ module Graphics.Cogh.Element.Internal
 
 import Data.List (sortBy)
 import Data.Maybe (catMaybes)
+import Graphics.Cogh.Action
 import Graphics.Cogh.Matrix
+import Graphics.Cogh.Target
 import qualified Graphics.Cogh.Vector as V
 import Graphics.Cogh.Window.Internal
 
@@ -20,43 +20,27 @@ data Element a = Element
   , _origin :: Origin
   , _angle :: Float
   , _depth :: Float
-  , _events :: [Event a]
+  , _actions :: [Action a]
   , renderOrChildren :: Either (Window -> Matrix -> IO ()) [Element a]
   }
 
 instance Functor Element where
   fmap f e =
     e
-    { _events = (fmap . fmap) f (_events e)
+    { _actions = (fmap . fmap) f (_actions e)
     , renderOrChildren = (fmap . fmap . fmap) f (renderOrChildren e)
     }
 
-newtype Event a = Event
-  { runEvent :: Window -> Target -> IO a
-  }
-
-instance Functor Event where
-  fmap f (Event event) = Event $ \window target -> fmap f (event window target)
-
-data Target =
-  Target Matrix
-         Matrix
-
-viewMatrix :: Target -> Matrix
-viewMatrix (Target view _) = view
-
-localMatrix :: Target -> Matrix
-localMatrix (Target _ local) = local
-
 normalize :: V.Pixel -> Element a -> ([Window -> IO a], Window -> IO ())
-normalize screenSize e = (events, renderAll)
+normalize screenSize e = (actions, renderAll)
   where
     matrix = projection $ fromIntegral <$> screenSize
     unsortedNormalized = normalize' e matrix 0
     compareDepth (_, _, aDepth) (_, _, bDepth) = compare aDepth bDepth
     sortedNormalized = sortBy compareDepth unsortedNormalized
-    (eventLists, mRenders) = unzip ((\(n, r, _) -> (n, r)) <$> sortedNormalized)
-    (events, renders) = (concat eventLists, catMaybes mRenders)
+    (actionLists, mRenders) =
+      unzip ((\(n, r, _) -> (n, r)) <$> sortedNormalized)
+    (actions, renders) = (concat actionLists, catMaybes mRenders)
     renderAll window = sequence_ (fmap (\render -> render window) renders)
 
 normalize'
@@ -65,12 +49,12 @@ normalize'
   -> Float
   -> [([Window -> IO a], Maybe (Window -> IO ()), Float)]
 normalize' e parentMatrix parentDepth =
-  (events, mRender, newDepth) : normalizedChildren
+  (actions, mRender, newDepth) : normalizedChildren
   where
     (view, local) = viewAndLocalMatrix e parentMatrix
     newDepth = parentDepth + _depth e
-    target = Target view local
-    events = fmap (\(Event event) window -> event window target) (_events e)
+    t = target view local
+    actions = fmap (\a window -> runAction a window t) (_actions e)
     normalizeChild child = normalize' child view newDepth
     normalizedChildren =
       case renderOrChildren e of

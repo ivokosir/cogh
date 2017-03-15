@@ -26,12 +26,14 @@ library
 
   exposed-modules:
     Graphics.Cogh,
+    Graphics.Cogh.Action,
     Graphics.Cogh.Color,
     Graphics.Cogh.Element,
     Graphics.Cogh.Event,
     Graphics.Cogh.Event.Keyboard,
     Graphics.Cogh.Event.Mouse,
     Graphics.Cogh.Image,
+    Graphics.Cogh.Target,
     Graphics.Cogh.Text,
     Graphics.Cogh.Vector,
     Graphics.Cogh.Window

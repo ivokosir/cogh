@@ -22,8 +22,8 @@ module Graphics.Cogh.Element
   , depth
   , setDepth
   , moveDepth
-  , events
-  , setEvents
+  , actions
+  , setActions
   , emptyElement
   , rectangle
   , group
@@ -39,6 +39,7 @@ import Graphics.Cogh.Matrix
 import Graphics.Cogh.Render
 import qualified Graphics.Cogh.Vector as V
 import Graphics.Cogh.Window
+import Graphics.Cogh.Action
 
 position :: Element a -> V.Vector
 position = _position
@@ -91,11 +92,11 @@ setDepth p e = e {_depth = p}
 moveDepth :: Float -> Element a -> Element a
 moveDepth diff e = e {_depth = depth e + diff}
 
-events :: Element a -> [Event a]
-events = _events
+actions :: Element a -> [Action a]
+actions = _actions
 
-setEvents :: [Event a] -> Element a -> Element a
-setEvents es e = e {_events = es}
+setActions :: [Action a] -> Element a -> Element a
+setActions as a = a {_actions = as}
 
 setRender :: (Window -> Matrix -> IO ()) -> Element a -> Element a
 setRender newRender e = e {renderOrChildren = Left newRender}
@@ -109,7 +110,7 @@ emptyElement =
   , _origin = V.vector 0 0
   , _angle = 0
   , _depth = 0
-  , _events = []
+  , _actions = []
   , renderOrChildren = Right []
   }
 
