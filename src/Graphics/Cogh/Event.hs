@@ -18,6 +18,7 @@ data Event
   | MouseScroll Pixel
   | WindowSize Pixel
   | Quit
+  deriving (Eq, Show, Read)
 
 pollEvents :: Window -> IO [Event]
 pollEvents w = do
