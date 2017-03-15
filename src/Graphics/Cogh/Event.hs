@@ -1,5 +1,5 @@
 module Graphics.Cogh.Event
-  ( Event
+  ( Event(..)
   , pollEvents
   ) where
 
