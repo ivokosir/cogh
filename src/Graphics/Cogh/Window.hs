@@ -8,6 +8,7 @@ module Graphics.Cogh.Window
 import Foreign.C
 import Foreign.Ptr
 import Graphics.Cogh.Element.Internal
+import Graphics.Cogh.Render
 import qualified Graphics.Cogh.Vector as V
 import Graphics.Cogh.Window.Internal
 
@@ -27,5 +28,7 @@ foreign import ccall unsafe "deleteWindow" deleteWindow ::
 render :: Window -> V.Pixel -> Element a -> IO [a]
 render window size element = do
   let (events, renderFunction) = normalize size element
+  clear window
   renderFunction window
+  swapBuffers window
   sequence (fmap (\event -> event window) events)
