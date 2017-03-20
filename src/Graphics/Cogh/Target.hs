@@ -1,6 +1,5 @@
 module Graphics.Cogh.Target
-  ( Target
-  , target
+  ( Target(..)
   , viewMatrix
   , localMatrix
   ) where
@@ -10,9 +9,6 @@ import Graphics.Cogh.Matrix
 data Target =
   Target Matrix
          Matrix
-
-target :: Matrix -> Matrix -> Target
-target = Target
 
 viewMatrix :: Target -> Matrix
 viewMatrix (Target view _) = view

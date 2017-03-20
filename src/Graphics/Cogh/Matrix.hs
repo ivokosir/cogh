@@ -16,6 +16,7 @@ module Graphics.Cogh.Matrix
   ) where
 
 import qualified Graphics.Cogh.Vector as V
+import Lens.Micro
 
 type Position = V.Vector
 
@@ -44,14 +45,14 @@ identity = Matrix 1 0 0 0 1 0
 translation :: V.Vector -> Matrix
 translation v = Matrix 1 0 x 0 1 y
   where
-    x = V.x v
-    y = V.y v
+    x = v ^. V.x
+    y = v ^. V.y
 
 scaling :: V.Vector -> Matrix
 scaling v = Matrix x 0 0 0 y 0
   where
-    x = V.x v
-    y = V.y v
+    x = v ^. V.x
+    y = v ^. V.y
 
 rotation :: Float -> Matrix
 rotation angle = Matrix c (-s) 0 s c 0
@@ -62,18 +63,18 @@ rotation angle = Matrix c (-s) 0 s c 0
 projection :: V.Vector -> Matrix
 projection v = Matrix (2 / w) 0 (-1) 0 (-2 / h) 1
   where
-    w = V.x v
-    h = V.y v
+    w = v ^. V.x
+    h = v ^. V.y
 
 model :: Position -> Scale -> Float -> Matrix
 model position scale angle = Matrix (c * w) (-s * h) x (s * w) (c * h) y
   where
     s = sin angle
     c = cos angle
-    x = V.x position
-    y = V.y position
-    w = V.x scale
-    h = V.y scale
+    x = position ^. V.x
+    y = position ^. V.y
+    w = scale ^. V.x
+    h = scale ^. V.y
 
 dot :: Matrix -> Matrix -> Matrix
 dot (Matrix a1 d1 g1 b1 e1 h1) (Matrix a2 d2 g2 b2 e2 h2) =
@@ -101,5 +102,5 @@ dotVector :: Matrix -> V.Vector -> V.Vector
 dotVector (Matrix a d g b e h) v =
   V.vector (a * x + d * y + g) (b * x + e * y + h)
   where
-    x = V.x v
-    y = V.y v
+    x = v ^. V.x
+    y = v ^. V.y

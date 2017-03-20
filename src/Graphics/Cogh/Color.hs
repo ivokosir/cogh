@@ -1,9 +1,7 @@
 module Graphics.Cogh.Color
   ( Color(..)
-  , R
-  , G
-  , B
-  , A
+  , color
+  , colorAlpha
   , red
   , green
   , blue
@@ -12,19 +10,17 @@ module Graphics.Cogh.Color
   , transparent
   ) where
 
-type R = Float
-
-type G = Float
-
-type B = Float
-
-type A = Float
-
 data Color =
-  Color R
-        G
-        B
-        A
+  Color Float
+        Float
+        Float
+        Float
+
+color :: Float -> Float -> Float -> Color
+color r g b = Color r g b 1
+
+colorAlpha :: Float -> Float -> Float -> Float -> Color
+colorAlpha = Color
 
 red :: Color
 red = Color 1 0 0 1

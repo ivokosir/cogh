@@ -1,6 +1,9 @@
 module Graphics.Cogh.Event.Keyboard
-  ( Key(..)
-  , Code(..)
+  ( Key
+  , code
+  , state
+  , readCode
+  , showCode
   , State(..)
   , getKeys
   ) where
@@ -11,14 +14,22 @@ import Graphics.Cogh.Event.Helper
 import Graphics.Cogh.Window.Internal
 import System.IO.Unsafe
 
-data Key = Key
-  { code :: Code
-  , state :: State
-  } deriving (Eq, Read, Show)
+data Key =
+  Key Int
+      State
+  deriving (Eq, Read, Show)
 
-newtype Code =
-  Code CUInt
-  deriving (Eq)
+code :: Key -> Int
+code (Key c _) = c
+
+state :: Key -> State
+state (Key _ s) = s
+
+readCode :: String -> Int
+readCode s = fromIntegral $ unsafePerformIO $ withCString s $ return . cReadCode
+
+showCode :: Int -> String
+showCode = unsafePerformIO . peekCString . cShowCode . fromIntegral
 
 data State
   = Press Bool
@@ -33,24 +44,12 @@ castKey cKey = do
   cCode <- keyCode cKey
   isPress <- keyIsPress cKey
   isRepeat <- keyIsRepeat cKey
-  return
+  return $
     Key
-    { code = Code cCode
-    , state =
-        if cBool isPress
-          then Press (cBool isRepeat)
-          else Release
-    }
-
-instance Read Code where
-  readsPrec _ s = [(Code fromString, "")]
-    where
-      fromString = unsafePerformIO $ withCString s $ return . readCode
-
-instance Show Code where
-  show (Code cCode) = toString
-    where
-      toString = unsafePerformIO $ peekCString $ showCode cCode
+      (fromIntegral cCode)
+      (if cBool isPress
+         then Press (cBool isRepeat)
+         else Release)
 
 foreign import ccall unsafe "getKeys" cGetKeys ::
                Window -> IO (Ptr (Ptr ()))
@@ -63,6 +62,8 @@ foreign import ccall unsafe "keyIsRepeat" keyIsRepeat ::
 
 foreign import ccall unsafe "keyCode" keyCode :: Ptr () -> IO CUInt
 
-foreign import ccall unsafe "readCode" readCode :: CString -> CUInt
+foreign import ccall unsafe "readCode" cReadCode ::
+               CString -> CUInt
 
-foreign import ccall unsafe "showCode" showCode :: CUInt -> CString
+foreign import ccall unsafe "showCode" cShowCode ::
+               CUInt -> CString

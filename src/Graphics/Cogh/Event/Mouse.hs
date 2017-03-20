@@ -1,8 +1,12 @@
 module Graphics.Cogh.Event.Mouse
-  ( Button(..)
+  ( Button
+  , code
+  , state
   , Code(..)
   , State(..)
-  , Motion(..)
+  , Motion
+  , motion
+  , position
   , getButtons
   , getMotions
   , getScrolls
@@ -11,15 +15,21 @@ module Graphics.Cogh.Event.Mouse
 import Foreign.C
 import Foreign.Ptr
 import Graphics.Cogh.Event.Helper
-import qualified Graphics.Cogh.Vector as V
+import Graphics.Cogh.Vector (Pixel, pixel)
 import Graphics.Cogh.Window.Internal
 
 import Prelude hiding (Left, Right)
 
-data Button = Button
-  { code :: Code
-  , state :: State
-  } deriving (Eq, Read, Show)
+data Button =
+  Button Code
+         State
+  deriving (Eq, Read, Show)
+
+code :: Button -> Code
+code (Button c _) = c
+
+state :: Button -> State
+state (Button _ s) = s
 
 data Code
   = Left
@@ -48,19 +58,23 @@ castButton cButton = do
         | cBool isMiddle = Middle
         | cBool isRight = Right
         | otherwise = Other (fromIntegral ccode)
-  return
+  return $
     Button
-    { code = code'
-    , state =
-        if cBool isPress
-          then Press
-          else Release
-    }
+      code'
+      (if cBool isPress
+         then Press
+         else Release)
 
-data Motion = Motion
-  { position :: V.Pixel
-  , motion :: V.Pixel
-  } deriving (Eq, Show, Read)
+data Motion =
+  Motion Pixel
+         Pixel
+  deriving (Eq, Show, Read)
+
+motion :: Motion -> Pixel
+motion (Motion m _) = m
+
+position :: Motion -> Pixel
+position (Motion _ p) = p
 
 getMotions :: Window -> IO [Motion]
 getMotions = getEvents cGetMotions castMotion
@@ -71,20 +85,19 @@ castMotion cMotion = do
   positionY <- motionPositionY cMotion
   cMotionX <- motionMotionX cMotion
   cMotionY <- motionMotionY cMotion
-  return
+  return $
     Motion
-    { position = V.pixel (fromIntegral positionX) (fromIntegral positionY)
-    , motion = V.pixel (fromIntegral cMotionX) (fromIntegral cMotionY)
-    }
+      (pixel (fromIntegral positionX) (fromIntegral positionY))
+      (pixel (fromIntegral cMotionX) (fromIntegral cMotionY))
 
-getScrolls :: Window -> IO [V.Pixel]
+getScrolls :: Window -> IO [Pixel]
 getScrolls = getEvents cGetScrolls castScroll
 
-castScroll :: Ptr () -> IO V.Pixel
+castScroll :: Ptr () -> IO Pixel
 castScroll cScroll = do
   x <- scrollX cScroll
   y <- scrollY cScroll
-  return $ V.pixel (fromIntegral x) (fromIntegral y)
+  return $ pixel (fromIntegral x) (fromIntegral y)
 
 foreign import ccall unsafe "getMouseButtons" cGetButtons ::
                Window -> IO (Ptr (Ptr ()))

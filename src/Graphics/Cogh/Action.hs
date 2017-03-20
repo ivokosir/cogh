@@ -1,20 +1,30 @@
 module Graphics.Cogh.Action
-  ( Action
-  , action
-  , runAction
+  ( Action(..)
+  , actionIO
+  , actionWindow
+  , actionTarget
+  , windowSize
+  , quit
+  , flatten
   ) where
 
+import Graphics.Cogh.Action.Internal
+import Graphics.Cogh.Event
 import Graphics.Cogh.Target (Target)
-import Graphics.Cogh.Window.Internal (Window)
+import Graphics.Cogh.Vector (Pixel)
+import Graphics.Cogh.Window.Internal
 
-newtype Action a =
-  Action (Window -> Target -> IO a)
+actionIO :: IO a -> Action a
+actionIO io = Action $ \_ _ _ -> (: []) <$> io
 
-action :: (Window -> Target -> IO a) -> Action a
-action = Action
+actionWindow :: Action Window
+actionWindow = Action $ \w _ _ -> return [w]
 
-runAction :: Action a -> Window -> Target -> IO a
-runAction (Action a) = a
+actionTarget :: Action Target
+actionTarget = Action $ \_ _ t -> return [t]
 
-instance Functor Action where
-  fmap f a = action $ \window target -> fmap f (runAction a window target)
+quit :: Action ()
+quit = flatten $ quits <$> event
+
+windowSize :: Action Pixel
+windowSize = flatten $ windowSizes <$> event

@@ -2,12 +2,16 @@ module Graphics.Cogh.Window
   ( Window
   , newWindow
   , deleteWindow
-  , render
+  , update
   ) where
 
+import Data.Foldable
+import Data.Function
 import Foreign.C
 import Foreign.Ptr
 import Graphics.Cogh.Element.Internal
+import Graphics.Cogh.Event
+import Graphics.Cogh.Matrix
 import Graphics.Cogh.Render
 import qualified Graphics.Cogh.Vector as V
 import Graphics.Cogh.Window.Internal
@@ -25,10 +29,20 @@ foreign import ccall unsafe "newWindow" cNewWindow ::
 foreign import ccall unsafe "deleteWindow" deleteWindow ::
                Window -> IO ()
 
-render :: Window -> V.Pixel -> Element a -> IO [a]
-render window size element = do
-  let (events, renderFunction) = normalize size element
-  clear window
-  renderFunction window
-  swapBuffers window
-  sequence (fmap (\event -> event window) events)
+update :: Window -> a -> (a -> Element (a -> a)) -> (a -> Bool) -> IO a
+update window initial view exit = updateLoop initial (V.pixel 0 0)
+  where
+    updateLoop old windowSize =
+      if exit old
+        then return old
+        else do
+          events <- pollEvents window
+          let newSize = last (windowSize : windowSizes events)
+              matrix = projection $ fromIntegral <$> newSize
+              element = view old
+              (updates, renderAll) = normalize window events element matrix
+          clear window
+          renderAll
+          swapBuffers window
+          new <- foldl' (&) old . concat <$> sequence updates
+          updateLoop new newSize

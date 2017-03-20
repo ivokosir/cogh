@@ -66,9 +66,9 @@ withColorPtr :: Color -> (Ptr Float -> IO a) -> IO a
 withColorPtr (Color r g b a) = withArray [r, g, b, a]
 
 drawRect :: Window -> Matrix -> Color -> IO ()
-drawRect window matrix color =
+drawRect window matrix c =
   withMatrixPtr matrix $ \cMatrix ->
-    withColorPtr color $ \cColor -> cDrawRect window cMatrix cColor
+    withColorPtr c $ \cColor -> cDrawRect window cMatrix cColor
 
 foreign import ccall unsafe "drawRect" cDrawRect ::
                Window -> Ptr Float -> Ptr Float -> IO ()

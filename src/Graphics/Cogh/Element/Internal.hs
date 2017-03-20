@@ -1,69 +1,84 @@
 module Graphics.Cogh.Element.Internal
-  ( Element(..)
-  , viewMatrix
-  , localMatrix
+  ( Element
+  , emptyElement
+  , position
+  , size
+  , scale
+  , origin
+  , rotation
+  , depth
+  , action
+  , render
+  , children
   , normalize
   ) where
 
 import Data.List (sortBy)
-import Data.Maybe (catMaybes)
-import Graphics.Cogh.Action
-import Graphics.Cogh.Matrix
+import Graphics.Cogh.Action.Internal
+import Graphics.Cogh.Event
+import Graphics.Cogh.Matrix hiding (rotation)
+import qualified Graphics.Cogh.Matrix as Matrix (rotation)
 import Graphics.Cogh.Target
-import qualified Graphics.Cogh.Vector as V
+import Graphics.Cogh.Vector (vector)
 import Graphics.Cogh.Window.Internal
+import Lens.Micro
+import Lens.Micro.TH
 
 data Element a = Element
   { _position :: Position
   , _size :: Size
   , _scale :: Scale
   , _origin :: Origin
-  , _angle :: Float
+  , _rotation :: Float
   , _depth :: Float
-  , _actions :: [Action a]
-  , renderOrChildren :: Either (Window -> Matrix -> IO ()) [Element a]
+  , _action :: Action a
+  , _render :: Window -> Matrix -> IO ()
+  , _children :: [Element a]
   }
+
+makeLenses ''Element
+
+emptyElement :: Element a
+emptyElement =
+  Element
+    (vector 0 0)
+    (vector 0 0)
+    (vector 1 1)
+    (vector 0 0)
+    0
+    0
+    mempty
+    (\_ _ -> return ())
+    []
 
 instance Functor Element where
   fmap f e =
-    e
-    { _actions = (fmap . fmap) f (_actions e)
-    , renderOrChildren = (fmap . fmap . fmap) f (renderOrChildren e)
-    }
+    e {_action = fmap f (_action e), _children = (fmap . fmap) f (_children e)}
 
-normalize :: V.Pixel -> Element a -> ([Window -> IO a], Window -> IO ())
-normalize screenSize e = (actions, renderAll)
+normalize :: Window -> Events -> Element a -> Matrix -> ([IO [a]], IO ())
+normalize window events element matrix = (results, renderAll)
   where
-    matrix = projection $ fromIntegral <$> screenSize
-    unsortedNormalized = normalize' e matrix 0
+    unsortedNormalized = normalize' window events element matrix 0
     compareDepth (_, _, aDepth) (_, _, bDepth) = compare aDepth bDepth
     sortedNormalized = sortBy compareDepth unsortedNormalized
-    (actionLists, mRenders) =
-      unzip ((\(n, r, _) -> (n, r)) <$> sortedNormalized)
-    (actions, renders) = (concat actionLists, catMaybes mRenders)
-    renderAll window = sequence_ (fmap (\render -> render window) renders)
+    (results, renders) = unzip ((\(n, r, _) -> (n, r)) <$> sortedNormalized)
+    renderAll = sequence_ renders
 
-normalize'
-  :: Element a
-  -> Matrix
-  -> Float
-  -> [([Window -> IO a], Maybe (Window -> IO ()), Float)]
-normalize' e parentMatrix parentDepth =
-  (actions, mRender, newDepth) : normalizedChildren
+normalize' :: Window
+           -> Events
+           -> Element a
+           -> Matrix
+           -> Float
+           -> [(IO [a], IO (), Float)]
+normalize' window events element parentMatrix parentDepth =
+  (results, (element ^. render) window local, newDepth) : normalizedChildren
   where
-    (view, local) = viewAndLocalMatrix e parentMatrix
-    newDepth = parentDepth + _depth e
-    t = target view local
-    actions = fmap (\a window -> runAction a window t) (_actions e)
-    normalizeChild child = normalize' child view newDepth
-    normalizedChildren =
-      case renderOrChildren e of
-        Right children -> concatMap normalizeChild children
-        _ -> []
-    mRender =
-      case renderOrChildren e of
-        Left render -> Just $ \window -> render window local
-        _ -> Nothing
+    (view, local) = viewAndLocalMatrix element parentMatrix
+    (Action a) = element ^. action
+    newDepth = parentDepth + element ^. depth
+    results = a window events (Target view local)
+    normalizeChild child = normalize' window events child view newDepth
+    normalizedChildren = concatMap normalizeChild (element ^. children)
 
 viewAndLocalMatrix :: Element a -> Matrix -> (Matrix, Matrix)
 viewAndLocalMatrix e parent = (view, local)
@@ -71,8 +86,9 @@ viewAndLocalMatrix e parent = (view, local)
     view =
       mconcat
         [ parent
-        , translation (_position e)
-        , rotation (_angle e)
-        , scaling (_scale e)
+        , translation (e ^. position)
+        , Matrix.rotation (e ^. rotation)
+        , scaling (e ^. scale)
         ]
-    local = mconcat [view, scaling (_size e), translation (negate $ _origin e)]
+    local =
+      mconcat [view, scaling (e ^. size), translation (negate $ e ^. origin)]

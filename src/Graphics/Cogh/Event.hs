@@ -1,5 +1,5 @@
 module Graphics.Cogh.Event
-  ( Event(..)
+  ( Events(..)
   , pollEvents
   ) where
 
@@ -11,33 +11,32 @@ import qualified Graphics.Cogh.Event.Mouse as Mouse
 import Graphics.Cogh.Vector
 import Graphics.Cogh.Window.Internal
 
-data Event
-  = Key Keyboard.Key
-  | MouseButton Mouse.Button
-  | MouseMotion Mouse.Motion
-  | MouseScroll Pixel
-  | WindowSize Pixel
-  | Quit
-  deriving (Eq, Show, Read)
+data Events = Events
+  { keys :: [Keyboard.Key]
+  , mouseButtons :: [Mouse.Button]
+  , mouseMotions :: [Mouse.Motion]
+  , mouseScrolls :: [Pixel]
+  , windowSizes :: [Pixel]
+  , quits :: [()]
+  } deriving (Eq, Show, Read)
 
-pollEvents :: Window -> IO [Event]
+pollEvents :: Window -> IO Events
 pollEvents w = do
   cPollEvents w
-  keyboardEvents <- Keyboard.getKeys w
-  mouseButtons <- Mouse.getButtons w
-  mouseMotions <- Mouse.getMotions w
-  mouseScrolls <- Mouse.getScrolls w
-  windowSizes <- getWindowSizes w
+  keyboardEvents' <- Keyboard.getKeys w
+  mouseButtons' <- Mouse.getButtons w
+  mouseMotions' <- Mouse.getMotions w
+  mouseScrolls' <- Mouse.getScrolls w
+  windowSizes' <- getWindowSizes w
   quit <- getQuit w
   return $
-    concat
-      [ fmap Key keyboardEvents
-      , fmap MouseButton mouseButtons
-      , fmap MouseMotion mouseMotions
-      , fmap MouseScroll mouseScrolls
-      , fmap WindowSize windowSizes
-      , [Quit | quit]
-      ]
+    Events
+      keyboardEvents'
+      mouseButtons'
+      mouseMotions'
+      mouseScrolls'
+      windowSizes'
+      [() | quit]
 
 getWindowSizes :: Window -> IO [Pixel]
 getWindowSizes = getEvents cGetWindowSizes castWindowSize

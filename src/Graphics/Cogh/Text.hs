@@ -39,11 +39,11 @@ foreign import ccall unsafe "&deleteFont" deleteFontFunPtr ::
                FunPtr (FontPtr -> IO ())
 
 newTextureFromText :: Window -> Font -> String -> Color -> IO Texture
-newTextureFromText w f text color = do
+newTextureFromText w f text c = do
   cTexture <-
     withCFont f $ \cFont ->
       withCString text $ \cText ->
-        withColorPtr color $ \cColor -> cNewTextureFromText w cFont cText cColor
+        withColorPtr c $ \cColor -> cNewTextureFromText w cFont cText cColor
   newTexture cTexture
 
 foreign import ccall unsafe "newTextureFromText"
