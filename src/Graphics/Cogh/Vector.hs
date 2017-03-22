@@ -5,6 +5,7 @@ module Graphics.Cogh.Vector
   , pixel
   , Vector
   , vector
+  , toVector
   , x
   , y
   , angle
@@ -36,6 +37,9 @@ type Vector = Point Float
 vector :: Float -> Float -> Vector
 vector = point
 
+toVector :: Pixel -> Vector
+toVector = fmap fromIntegral
+
 instance Num a =>
          Num (Point a) where
   p1 + p2 = point (p1 ^. x + p2 ^. x) (p1 ^. y + p2 ^. y)
@@ -44,6 +48,11 @@ instance Num a =>
   abs = fmap abs
   signum = fmap signum
   fromInteger a = point (fromInteger a) (fromInteger a)
+
+instance Fractional a =>
+         Fractional (Point a) where
+  p1 / p2 = point (p1 ^. x / p2 ^. x) (p1 ^. y / p2 ^. y)
+  fromRational a = point (fromRational a) (fromRational a)
 
 instance Functor Point where
   fmap f p = point (f (p ^. x)) (f (p ^. y))

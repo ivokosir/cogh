@@ -25,6 +25,7 @@ import Data.Function
 import Graphics.Cogh.Element.Internal
 import Graphics.Cogh.Matrix (Position, Size, Scale, Origin)
 import Graphics.Cogh.Render
+import Graphics.Cogh.Vector (toVector)
 import Lens.Micro
 
 rectangle :: Size -> Color -> Element a
@@ -34,7 +35,7 @@ rectangle rectSize c = emptyElement & size .~ rectSize & render .~ rectRender
 
 image :: Texture -> Element a
 image texture =
-  emptyElement & size .~ (fromIntegral <$> textureSize texture) & render .~
+  emptyElement & size .~ (texture & textureSize & toVector) & render .~
   textureRender
   where
     textureRender window matrix = drawTexture window matrix texture

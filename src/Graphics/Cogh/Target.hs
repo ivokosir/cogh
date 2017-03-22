@@ -1,17 +1,28 @@
 module Graphics.Cogh.Target
   ( Target(..)
-  , viewMatrix
-  , localMatrix
+  , toWorld
+  , toTarget
+  , isInside
   ) where
 
 import Graphics.Cogh.Matrix
+import Graphics.Cogh.Vector
+import Lens.Micro
 
 data Target =
   Target Matrix
          Matrix
 
-viewMatrix :: Target -> Matrix
-viewMatrix (Target view _) = view
+toWorld :: Pixel -> Pixel -> Vector
+toWorld windowSize p = vector (2 * (ratio ^. x) - 1) (1 - 2 * (ratio ^. y))
+  where
+    ratio = toVector windowSize / toVector p
 
-localMatrix :: Target -> Matrix
-localMatrix (Target _ local) = local
+toTarget :: Target -> Vector -> (Vector, Vector)
+toTarget (Target view local) v = (toMatrix view, toMatrix local)
+  where
+    toMatrix matrix = dotVector (inverse matrix) v
+
+isInside :: (Vector, Vector) -> Bool
+isInside (_, v) =
+  (v ^. x) >= 0 && (v ^. x) <= 1 && (v ^. y) >= 0 && (v ^. y) <= 1

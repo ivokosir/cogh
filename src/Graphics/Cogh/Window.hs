@@ -13,7 +13,7 @@ import Graphics.Cogh.Element.Internal
 import Graphics.Cogh.Event
 import Graphics.Cogh.Matrix
 import Graphics.Cogh.Render
-import qualified Graphics.Cogh.Vector as V
+import Graphics.Cogh.Vector hiding (normalize)
 import Graphics.Cogh.Window.Internal
 
 newWindow :: String -> IO (Maybe Window)
@@ -30,7 +30,7 @@ foreign import ccall unsafe "deleteWindow" deleteWindow ::
                Window -> IO ()
 
 update :: Window -> a -> (a -> Element (a -> a)) -> (a -> Bool) -> IO a
-update window initial view exit = updateLoop initial (V.pixel 0 0)
+update window initial view exit = updateLoop initial (pixel 0 0)
   where
     updateLoop old windowSize =
       if exit old
@@ -38,7 +38,7 @@ update window initial view exit = updateLoop initial (V.pixel 0 0)
         else do
           events <- pollEvents window
           let newSize = last (windowSize : windowSizes events)
-              matrix = projection $ fromIntegral <$> newSize
+              matrix = projection $ toVector newSize
               element = view old
               (updates, renderAll) = normalize window events element matrix
           clear window

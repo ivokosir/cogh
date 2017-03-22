@@ -5,8 +5,8 @@ module Graphics.Cogh.Event.Mouse
   , Code(..)
   , State(..)
   , Motion
-  , motion
   , position
+  , motion
   , getButtons
   , getMotions
   , getScrolls
@@ -70,11 +70,11 @@ data Motion =
          Pixel
   deriving (Eq, Show, Read)
 
-motion :: Motion -> Pixel
-motion (Motion m _) = m
-
 position :: Motion -> Pixel
-position (Motion _ p) = p
+position (Motion p _) = p
+
+motion :: Motion -> Pixel
+motion (Motion _ m) = m
 
 getMotions :: Window -> IO [Motion]
 getMotions = getEvents cGetMotions castMotion
